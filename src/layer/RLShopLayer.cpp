@@ -76,7 +76,7 @@ bool RLShopLayer::init() {
 
     // ruby counter label
     auto rubyLabel =
-        CCCounterLabel::create(Mod::get()->getSavedValue<int>("rubies"),
+        CCCounterLabel::create(std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)),
             "bigFont.fnt",
             FormatterType::Integer);
     rubyLabel->setPosition(
@@ -370,11 +370,11 @@ void RLShopLayer::onShopkeeper(CCObject* sender) {
             break;
         case 7:
             response =
-                "Everyone <cr>hates me</c>,<d100> but I'm their <cf>God</c>...<d050> I mean...<d100> just a <cg>normal shopkeeper</c>.";
+                "Do the people managing this place even <cg>care</c> about me?";
             break;
         case 8:
             response =
-                "<co><d030>s<d030>i<d030>g<d030>h<d030>.<d030>.<d030>.<d030></c> did I make the <cr>wrong</c> decision...";
+                "<co>Overture</c> has taken over my own creation and I got <cr>exiled</c> by them. Welp... I'm <co>homeless</c> now...";
             break;
         case 9:
             response =
@@ -385,13 +385,11 @@ void RLShopLayer::onShopkeeper(CCObject* sender) {
             break;
         case 11:
             response =
-                "<cg>Fun fact about me!</c> I actually <co>suck at making "
-                "gameplay</c>.";
+                "<cg>Fun fact about me!</c> I actually <co>suck at making gameplay</c>.";
             break;
         case 12:
             response =
-                "If you're giving me a <cr>nameplate</c>, at least put an "
-                "<cg>effort into it</c>...";
+                "Hope you like the new <cr>Owners</c> of this place... because they <co>are</c> the ones that <cr>exiled me</c>...";
             break;
         case 13:
             response =
@@ -399,23 +397,25 @@ void RLShopLayer::onShopkeeper(CCObject* sender) {
             break;
         case 14:
             response =
-                "Would you like to buy my entire shop for <cr>100k Rubies?</c> I know "
-                "someone is <cy>interested</c> :P";
+                "Would you like to buy my entire shop for <cr>100k Rubies?</c> I know someone is <cy>interested</c> :P";
             break;
         case 15:
-            response = "Give me <cr>10k Rubies</c> and a <cl>high-end car</c>!";
+            response = "I don't <cr>like</c> the 'new' owners of this place.";
             break;
         case 16:
             response = "I heard there's <cf>The Spire</c> nearby, but I don't know how to get in there...";
             break;
         case 17:
-            response = "Am I <cr>much worse</c> than <cg>RubRub</c>? Is that right? I don't deserve this...";
+            response = "What does <cp>Overture</c> really want with me? Why won't they <cr>leave me alone</c>? I just want to live my life <cg>peacefully</c>...";
             break;
         case 18:
             response = "I'm thinking of <cr><s100>burning</s></c> down this shop... <d100> <cy>just kidding!</c> <d100> <co>maybe...</c>";
             break;
         case 19:
-            response = "Come back later... <co>please...</c>";
+            response = "Wow <cl>Rated Layouts</c> updated after months... thats <co>shocking</c>...";
+            break;
+        case 20:
+            response = "You know what's <cb>sad</c>? The peeps in the <co>plushies</c> left this place... :(";
             break;
         default:
             response = "<cg>Weh!</c>";
@@ -564,7 +564,7 @@ void RLShopLayer::updateShopPage() {
 void RLShopLayer::refreshRubyLabel() {
     if (!m_rubyLabel)
         return;
-    int val = Mod::get()->getSavedValue<int>("rubies", 0);
+    int val = std::max(0, Mod::get()->getSavedValue<int>("rubies", 0));
     m_rubyLabel->setTargetCount(val);
     m_rubyLabel->updateCounter(0.25f);
 }
@@ -654,7 +654,7 @@ void RLShopLayer::loadShopPage(int page) {
 }
 
 void RLShopLayer::onResetRubies() {
-    if (Mod::get()->getSavedValue<int>("rubies") <= 0) {
+    if (std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)) <= 0) {
         Notification::create("You don't have any rubies to reset!",
             NotificationIcon::Warning)
             ->show();
@@ -702,7 +702,7 @@ void RLShopLayer::onResetRubies() {
 
             Mod::get()->setSavedValue<int>("selected_nameplate", 0);
 
-            if (Mod::get()->getSavedValue<int>("rubies") > 0) {
+            if (std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)) > 0) {
                 Mod::get()->setSavedValue<int>("rubies", 0);
                 Notification::create("Rubies have been reset!",
                     NotificationIcon::Info)

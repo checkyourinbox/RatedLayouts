@@ -11,6 +11,7 @@ public:
 private:
     bool init() override;
     void onNoteLabelClick(CCObject* sender);
+    void onUserClick(CCObject* sender);
 
     GJGameLevel* m_level = nullptr;
     cue::ListNode* m_listNode = nullptr;

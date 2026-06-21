@@ -155,6 +155,7 @@ bool RLModsNotesPopup::init() {
                 int difficulty = val["difficulty"].asInt().unwrapOrDefault();
                 int featured = val["featured"].asInt().unwrapOrDefault();
                 bool isRejected = val["isRejected"].asBool().unwrapOrDefault();
+                int accountId = val["accountId"].asInt().unwrapOrDefault();
 
                 // username label
                 auto usernameLabel =
@@ -168,10 +169,15 @@ bool RLModsNotesPopup::init() {
                 ccColor4B bgColor = (idx % 2 == 0) ? ccColor4B{55, 70, 140, 255} : ccColor4B{40, 50, 100, 255};
                 auto layer = CCLayerColor::create(bgColor, scrollRef->getContentSize().width, totalH);
 
-                usernameLabel->setAnchorPoint({0.f, .5f});
-                usernameLabel->setScale(.6f);
-                usernameLabel->setPosition({15.f, totalH - 15.f});
-                layer->addChild(usernameLabel);
+                usernameLabel->limitLabelWidth(80.f, .5f, .1f);
+                
+                auto userBtn = CCMenuItemSpriteExtra::create(usernameLabel, self, menu_selector(RLModsNotesPopup::onUserClick));
+                userBtn->setTag(accountId);
+                userBtn->setPosition({15.f + usernameLabel->getScaledContentSize().width / 2.f, totalH - 15.f});
+
+                auto userMenu = CCMenu::create(userBtn, nullptr);
+                userMenu->setPosition({0, 0});
+                layer->addChild(userMenu);
 
                 timeLabel->setAnchorPoint({1.f, .5f});
                 timeLabel->setScale(.5f);
@@ -191,12 +197,9 @@ bool RLModsNotesPopup::init() {
                 // note label
                 self->m_notes.push_back(note);
                 auto noteDisplay = note;
-                if (noteDisplay.size() > 80) {
-                    noteDisplay = noteDisplay.substr(0, 80) + "...";
-                }
 
-                auto noteLabel = CCLabelBMFont::create(noteDisplay.c_str(), "chatFont.fnt");
-                noteLabel->limitLabelWidth(noteBg->getContentSize().width - 20.f, 1.f, .1f);
+                auto noteLabel = SimpleTextArea::create(noteDisplay.c_str(), "chatFont.fnt", .65f, noteBg->getContentSize().width - 20.f);
+                noteLabel->setMaxLines(3);
 
                 auto noteButton = CCMenuItemSpriteExtra::create(noteLabel, self, menu_selector(RLModsNotesPopup::onNoteLabelClick));
                 noteButton->setTag(idx);
@@ -285,4 +288,16 @@ void RLModsNotesPopup::onNoteLabelClick(CCObject* sender) {
 
     auto note = m_notes[idx];
     MDPopup::create("Moderator Note", note.c_str(), "OK")->show();
+}
+
+void RLModsNotesPopup::onUserClick(CCObject* sender) {
+    auto button = static_cast<CCMenuItemSpriteExtra*>(sender);
+    if (!button)
+        return;
+    
+    int accountId = button->getTag();
+    if (accountId <= 0)
+        return;
+    
+    ProfilePage::create(accountId, false)->show();
 }

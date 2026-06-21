@@ -21,4 +21,8 @@ namespace rl {
     // Persist updated collected rubies for a level. Returns true on success.
     bool persistCollectedRubies(int levelId, int totalRuby, int collected) noexcept;
 
+    // Helpers to access the player's global rubies value
+    int getPlayerRubies() noexcept;
+    void setPlayerRubies(int amount) noexcept;
+
 }  // namespace rl

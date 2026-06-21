@@ -455,7 +455,7 @@ class $modify(RLProfilePage, ProfilePage) {
     void fetchProfileData(int accountId) {
         log::info("Fetching profile data for account ID: {}", accountId);
         m_fields->accountId = accountId;
-        if (m_fields->accountId == rl::DEV_ACCOUNT_ID) {
+        if (m_fields->accountId == rl::ARCTICWOOF_ACCOUNT_ID) {
             RLAchievements::onReward("misc_arcticwoof");
         }
 

@@ -1,5 +1,5 @@
 {
-	"geode": "5.6.1",
+	"geode": "5.7.1",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -59,7 +59,8 @@
 	},
 	"links": {
 		"source": "https://github.com/RatedLayouts/RatedLayouts",
-		"homepage": "https://ratedlayouts.arcticwoof.xyz/"
+		"homepage": "https://ratedlayouts.arcticwoof.xyz/",
+		"community": "https://discord.gg/ratedlayouts"
 	},
 	"tags": [
 		"content",
@@ -215,7 +216,7 @@
 			"default": false,
 			"description": "Disables particle effects in the Legendary+ Rated Layouts level name title. <cy>Enable this setting if you experience performance issues.</cy>"
 		},
-		"disableRlSearchLayer": {
+		"disableRLSearchLayer": {
 			"name": "Disable RL button search layer",
 			"type": "bool",
 			"default": false,

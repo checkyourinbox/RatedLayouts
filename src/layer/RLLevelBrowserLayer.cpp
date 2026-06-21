@@ -1074,10 +1074,8 @@ void RLLevelBrowserLayer::onDeleteFilter(CCObject* sender) {
 void RLLevelBrowserLayer::onInfoButton(CCObject* sender) {
     FLAlertLayer::create(
         "Layouts",
-        "<cl>Layout</c> listed here rewards <cl>Spark</c> or <co>Planets</c> if "
-        "is rated by <cf>ArcticWoof</c> or <cr>Layout Admins</c>. For sent "
-        "layouts, each of the layouts here has at least <cg>one sent by Layout "
-        "Mods</c> and can only be rated when it has at least <cb>3+ sends</c>.",
+        "<cl>Layout</c> listed here rewards <cl>Spark</c> or <co>Planets</c> if is rated by the <cr>Layout Admins</c>.\n\n"
+        "For sent layouts, each of the layouts here has at least <cg>one sent by Layout Mods</c> and can only be rated when it has at least <cb>3+ sends</c>.",
         "OK")
         ->show();
 }

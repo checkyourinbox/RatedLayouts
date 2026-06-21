@@ -338,7 +338,7 @@ void RLNotificationOverlay::callRateNotification(float dt) {
                         }
                     }
                 } else {
-                    log::info("No new monthly platformer event notifications");
+                    log::debug("No new monthly platformer event notifications");
                 }
             }
 
@@ -364,7 +364,7 @@ void RLNotificationOverlay::callRateNotification(float dt) {
                         }
                     }
                 } else {
-                    log::info("No new event notifications");
+                    log::debug("No new event notifications");
                 }
             }
         });

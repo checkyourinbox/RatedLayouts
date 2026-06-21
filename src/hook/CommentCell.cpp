@@ -98,7 +98,8 @@ class $modify(RLCommentCell, CommentCell) {
         // nothing to do if user has no special state
         if (!m_fields->supporter && !m_fields->isClassicMod &&
             !m_fields->isClassicAdmin && !m_fields->isLeaderboardMod &&
-            !m_fields->isPlatMod && !m_fields->isPlatAdmin && !m_fields->booster &&
+            !m_fields->isLeaderboardAdmin && !m_fields->isPlatMod && 
+            !m_fields->isPlatAdmin && !m_fields->booster &&
             !m_fields->isDeveloper && !m_fields->isOwner) {
             return false;
         }
@@ -111,25 +112,25 @@ class $modify(RLCommentCell, CommentCell) {
         ccColor3B color = ccWHITE;  // default white
         // choose highest-priority role for color
         if (m_fields->isOwner) {
-            color = {150, 255, 255};  // ArcticWoof cyan
+            color = {150, 255, 255};  // owner
         } else if (m_fields->isDeveloper) {
-            color = {17, 153, 238};  // developer blue
+            color = {175, 255, 0};  // developer
         } else if (m_fields->isClassicAdmin) {
-            color = {255, 170, 170};  // bright red
+            color = {180, 180, 255};  // classic admin
         } else if (m_fields->isPlatAdmin) {
-            color = {255, 235, 161};  // bright orange
+            color = {245, 150, 0};  // plat admin
         } else if (m_fields->isLeaderboardAdmin) {
-            color = {140, 255, 140};  // brighter green
+            color = {140, 255, 140};  // leaderboard admin
         } else if (m_fields->isLeaderboardMod) {
-            color = {183, 255, 183};  // bright green
+            color = {0, 245, 200};  // leaderboard mod
         } else if (m_fields->isClassicMod) {
-            color = {120, 200, 255};  // bright blue
+            color = {135, 190, 255};  // classic mod
         } else if (m_fields->isPlatMod) {
-            color = {234, 255, 143};  // bright cyan
+            color = {255, 200, 150};  // plat mod
         } else if (m_fields->supporter) {
-            color = {255, 200, 255};  // bright pink
+            color = {255, 125, 200};  // supporter
         } else if (m_fields->booster) {
-            color = {200, 200, 255};  // light purple
+            color = {190, 150, 255};  // booster
         }
 
         log::debug("Applying comment text color for role: {} in {} mode",
@@ -199,18 +200,20 @@ class $modify(RLCommentCell, CommentCell) {
         bool isClassicMod = json["isClassicMod"].asBool().unwrapOrDefault();
         bool isClassicAdmin = json["isClassicAdmin"].asBool().unwrapOrDefault();
         bool isLeaderboardMod = json["isLeaderboardMod"].asBool().unwrapOrDefault();
+        bool isLeaderboardAdmin = json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
         bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
         bool isPlatAdmin = json["isPlatAdmin"].asBool().unwrapOrDefault();
         bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
         bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
 
         if (stars == 0 && planets == 0 && !isSupporter && !isBooster &&
-            !isClassicMod && !isClassicAdmin && !isLeaderboardMod &&
+            !isClassicMod && !isClassicAdmin && !isLeaderboardMod && !isLeaderboardAdmin &&
             !isPlatMod && !isPlatAdmin && !isDeveloper && !isOwner) {
             m_fields->stars = 0;
             m_fields->isClassicMod = false;
             m_fields->isClassicAdmin = false;
             m_fields->isLeaderboardMod = false;
+            m_fields->isLeaderboardAdmin = false;
             m_fields->isPlatMod = false;
             m_fields->isPlatAdmin = false;
             m_fields->supporter = false;
@@ -231,6 +234,8 @@ class $modify(RLCommentCell, CommentCell) {
                     if (auto badge = userNameMenu->getChildByID("rl-comment-plat-mod-badge"))
                         badge->removeFromParent();
                     if (auto badge = userNameMenu->getChildByID("rl-comment-lb-mod-badge"))
+                        badge->removeFromParent();
+                    if (auto badge = userNameMenu->getChildByID("rl-comment-lb-admin-badge"))
                         badge->removeFromParent();
                     userNameMenu->updateLayout();
                 }
@@ -310,6 +315,7 @@ class $modify(RLCommentCell, CommentCell) {
         m_fields->isClassicMod = isClassicMod;
         m_fields->isClassicAdmin = isClassicAdmin;
         m_fields->isLeaderboardMod = isLeaderboardMod;
+        m_fields->isLeaderboardAdmin = isLeaderboardAdmin;
         m_fields->isPlatMod = isPlatMod;
         m_fields->isPlatAdmin = isPlatAdmin;
         m_fields->isDeveloper = isDeveloper;
@@ -381,6 +387,7 @@ class $modify(RLCommentCell, CommentCell) {
                     cellRef->m_fields->isClassicMod = false;
                     cellRef->m_fields->isClassicAdmin = false;
                     cellRef->m_fields->isLeaderboardMod = false;
+                    cellRef->m_fields->isLeaderboardAdmin = false;
                     cellRef->m_fields->isPlatMod = false;
                     cellRef->m_fields->isPlatAdmin = false;
 
@@ -406,6 +413,9 @@ class $modify(RLCommentCell, CommentCell) {
                                 badge->removeFromParent();
                             if (auto badge =
                                     userNameMenu->getChildByID("rl-comment-lb-mod-badge"))
+                                badge->removeFromParent();
+                            if (auto badge =
+                                    userNameMenu->getChildByID("rl-comment-lb-admin-badge"))
                                 badge->removeFromParent();
                             userNameMenu->updateLayout();
                         }
@@ -437,13 +447,15 @@ class $modify(RLCommentCell, CommentCell) {
             bool isClassicAdmin = json["isClassicAdmin"].asBool().unwrapOrDefault();
             bool isLeaderboardMod =
                 json["isLeaderboardMod"].asBool().unwrapOrDefault();
+            bool isLeaderboardAdmin =
+                json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
             bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
             bool isPlatAdmin = json["isPlatAdmin"].asBool().unwrapOrDefault();
             bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
             bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
 
             if (stars == 0 && planets == 0 && !isSupporter && !isBooster &&
-                !isClassicMod && !isClassicAdmin && !isLeaderboardMod &&
+                !isClassicMod && !isClassicAdmin && !isLeaderboardMod && !isLeaderboardAdmin &&
                 !isPlatMod && !isPlatAdmin && !isDeveloper && !isOwner) {
                 log::debug("User {} has no role/stars/planets", accountId);
                 if (!cellRef)
@@ -452,6 +464,7 @@ class $modify(RLCommentCell, CommentCell) {
                 cellRef->m_fields->isClassicMod = false;
                 cellRef->m_fields->isClassicAdmin = false;
                 cellRef->m_fields->isLeaderboardMod = false;
+                cellRef->m_fields->isLeaderboardAdmin = false;
                 cellRef->m_fields->isPlatMod = false;
                 cellRef->m_fields->isPlatAdmin = false;
                 cellRef->m_fields->isDeveloper = false;
@@ -478,6 +491,9 @@ class $modify(RLCommentCell, CommentCell) {
                             badge->removeFromParent();
                         if (auto badge =
                                 userNameMenu->getChildByID("rl-comment-lb-mod-badge"))
+                            badge->removeFromParent();
+                        if (auto badge =
+                                userNameMenu->getChildByID("rl-comment-lb-admin-badge"))
                             badge->removeFromParent();
                         userNameMenu->updateLayout();
                     }
@@ -549,6 +565,7 @@ class $modify(RLCommentCell, CommentCell) {
             cellRef->m_fields->isClassicMod = isClassicMod;
             cellRef->m_fields->isClassicAdmin = isClassicAdmin;
             cellRef->m_fields->isLeaderboardMod = isLeaderboardMod;
+            cellRef->m_fields->isLeaderboardAdmin = isLeaderboardAdmin;
             cellRef->m_fields->isPlatMod = isPlatMod;
             cellRef->m_fields->isPlatAdmin = isPlatAdmin;
             cellRef->m_fields->isDeveloper = isDeveloper;

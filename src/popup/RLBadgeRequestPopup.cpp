@@ -22,20 +22,27 @@ bool RLBadgeRequestPopup::init() {
 
     auto cs = m_mainLayer->getContentSize();
 
-    m_emailInput = TextInput::create(370.f, "Email Address");
+    m_emailInput = TextInput::create(180.f, "Email Address");
     m_emailInput->setCommonFilter(CommonFilter::Any);
-    m_emailInput->setPosition({cs.width / 2.f, cs.height - 50.f});
+    m_emailInput->setLabel("Your Ko-Fi Email Address");
+    m_emailInput->setPosition({cs.width / 2.f - 100.f, cs.height - 60.f});
     m_mainLayer->addChild(m_emailInput);
+
+    m_discordInput = TextInput::create(180.f, "Discord Username");
+    m_discordInput->setCommonFilter(CommonFilter::Any);
+    m_discordInput->setLabel("Your Discord Username");
+    m_discordInput->setPosition({cs.width / 2.f + 100.f, cs.height - 60.f});
+    m_mainLayer->addChild(m_discordInput);
 
     // info text
     auto infoText = MDTextArea::create(
-        "Enter your <co>Email Address</c> that is linked "
+        "Enter your <co>Email Address</c> or <cb>Discord Userame</c> that is linked "
         "to your <cp>Ko-fi account</c> to receive a <cp>Layout Supporter Badge</c>.\n\n"
         "After you <cg>successfuly get your badge</c>, you can click the <co>Request</c> button to request access to supporter-only features in Rated Layouts!\n\n"
-        "Make sure that you got the <cd>Rated Layouts Supporter Membership</c> and have already <cg>linked</c> your <cb>Email</c> through <cp>Ko-fi.</c> beforehand!\n\n"
+        "Make sure that you got the [<cd>Rated Layouts Supporter Membership</c>](https://ko-fi.com/arcticwoof/) and have already <cg>linked</c> your <cb>Email</c> through <cp>Ko-fi.</c> beforehand!\n\n"
         "### If you encounter any <cr>issues</c> during this process, please contact <cf>[ArcticWoof](user:7689052)</c> via GD DMs or through <cp>[Ko-Fi](https://ko-fi.com/arcticwoof) messages</c>.",
         {cs.width - 40.f, 150.f});
-    infoText->setPosition({cs.width / 2.f, cs.height - 150.f});
+    infoText->setPosition({cs.width / 2.f, cs.height - 155.f});
     infoText->setAnchorPoint({0.5f, 0.5f});
     infoText->setID("rl-badge-request-info");
     m_mainLayer->addChild(infoText);
@@ -52,19 +59,26 @@ bool RLBadgeRequestPopup::init() {
 }
 
 void RLBadgeRequestPopup::onSubmit(CCObject* sender) {
-    if (!m_emailInput)
+    if (!m_emailInput || !m_discordInput)
         return;
     auto upopup =
         UploadActionPopup::create(nullptr, "Submitting Badge Request...");
     upopup->show();
     auto email = m_emailInput->getString();
-    if (email.empty()) {
-        upopup->showFailMessage("Please enter your email address");
+    auto discord = m_discordInput->getString();
+    if (email.empty() && discord.empty()) {
+        upopup->showFailMessage("Please enter your email address or Discord username");
         return;
     }
 
     matjson::Value body = matjson::Value::object();
-    body["email"] = std::string(email);
+    if (!email.empty()) {
+        body["email"] = std::string(email);
+    }
+    if (!discord.empty()) {
+        body["discord"] = std::string(discord);
+    }
+
     body["argonToken"] = Mod::get()->getSavedValue<std::string>("argon_token");
     body["accountId"] = GJAccountManager::get()->m_accountID;
 

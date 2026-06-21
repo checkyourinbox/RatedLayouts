@@ -15,6 +15,7 @@ private:
     void onSubmit(CCObject* sender);
 
     TextInput* m_emailInput = nullptr;
+    TextInput* m_discordInput = nullptr;
     async::TaskHolder<web::WebResponse> m_getSupporterTask;
     ~RLBadgeRequestPopup() {
         m_getSupporterTask.cancel();

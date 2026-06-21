@@ -245,25 +245,27 @@ bool RLCreditsPopup::init() {
                 if (isOwner) {
                     bgSprite->setColor({150, 255, 255});  // cyan(boi) for owner
                 } else if (isDeveloper) {
-                    bgSprite->setColor({17, 153, 238});  // deep blue for developer
+                    bgSprite->setColor({175, 255, 0});  // deep blue for developer
                 } else if (isAdmin) {
-                    if (isPlat) {
-                        bgSprite->setColor({255, 160, 0});  // orange for plat admin
+                    if (isLeaderboard) {
+                        bgSprite->setColor({0, 245, 200});  // green for leaderboard admin
+                    } else if (isPlat) {
+                        bgSprite->setColor({245, 150, 0});  // orange for plat admin
                     } else {
-                        bgSprite->setColor({245, 107, 107});  // red for classic admin
+                        bgSprite->setColor({180, 180, 255});  // red for classic admin
                     }
                 } else if (isMod) {
                     if (isLeaderboard) {
-                        bgSprite->setColor({120, 220, 120});  // green for leaderboard mod
+                        bgSprite->setColor({0, 245, 200});  // green for leaderboard mod
                     } else if (isPlat) {
-                        bgSprite->setColor({0, 200, 200});  // cyan for plat mod
+                        bgSprite->setColor({255, 200, 150});  // cyan for plat mod
                     } else {
-                        bgSprite->setColor({81, 147, 248});  // blue for classic mod
+                        bgSprite->setColor({135, 190, 255});  // blue for classic mod
                     }
                 } else if (isBooster) {
-                    bgSprite->setColor({148, 93, 255});
+                    bgSprite->setColor({190, 150, 255});
                 } else if (isSupporter) {
-                    bgSprite->setColor({248, 86, 187});
+                    bgSprite->setColor({255, 125, 200});
                 }
                 cell->addChild(bgSprite);
 
@@ -388,7 +390,7 @@ void RLCreditsPopup::onInfo(CCObject* sender) {
         "Layout "
         "Moderator</c>**, you are required to join the <cl>Rated Layouts Discord Server</c> and be <cg>active in the community</c>.\n"
         "There's an <cl>application form</c> in the server that you can fill out and the Admins usually review these applications.\n"
-        "### <cr>Begging for Layout Mod to ArcticWoof or any of the Layout "
+        "### <cr>Begging for Layout Mod to the Layout "
         "Admins will be ignored and lower your chances of becoming a mod.</c>\n"
         "If you have any questions about the application process or the role, feel free to ask in the <cl>Rated Layouts Discord Server</c>.\n"
         "\r\n\r\n---\r\n\r\n"
@@ -398,7 +400,7 @@ void RLCreditsPopup::onInfo(CCObject* sender) {
         "- Moderators may also be asked to help with <cg>managing the community</c>, such as moderating the leaderboard section or assisting with events.\n"
         "\r\n\r\n---\r\n\r\n"
         "If you are <cg>interested in becoming a layout moderator</c>, make sure to join the <cl>Rated Layouts Discord Server</c> and apply in the <cl>application form</c>!\n"
-        "#### <cy>*Do note that ArcticWoof does not control over the selection process of moderators.*</cy>",
+        "#### <cy>*Do note that ArcticWoof is not in charge of selecting moderators nor manage the moderation team directly. The Layout Admins/Owners are.*</cy>",
         "OK")
         ->show();
 }

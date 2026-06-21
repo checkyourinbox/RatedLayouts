@@ -7,10 +7,7 @@ using namespace geode::prelude;
 
 namespace rl {
     // Account ID of ArcticWoof
-    constexpr int DEV_ACCOUNT_ID = 7689052;
-
-    // Account ID of the bonneville1 developer.
-    constexpr int NOVA_ACCOUNT_ID = 4882817;
+    constexpr int ARCTICWOOF_ACCOUNT_ID = 7689052;
 
     // Base URL for all Rated Layouts API endpoints.
     constexpr std::string_view BASE_API_URL = "https://gdrate.arcticwoof.xyz";
@@ -90,7 +87,7 @@ namespace rl {
     inline void showOwnerInfo() {
         FLAlertLayer::create(
             "Rated Layouts Owner",
-            "<cf>This user</c> is the owner of <cl>Rated Layouts</c>. They're the main maintainers of this <cp>Geode Mod</c> and has the ability to <cg>promote admins</c> and all permissions within <cl>Rated Layouts</c>.",
+            "<cf>This user</c> is the owner of <cl>Rated Layouts</c>. They have the ability to <cg>promote admins</c> and all permissions within <cl>Rated Layouts</c>.",
             "OK")
             ->show();
     }
@@ -98,7 +95,7 @@ namespace rl {
     inline void showDevInfo() {
         FLAlertLayer::create(
             "Rated Layouts Developer",
-            "<cf>This user</c> is a developer for <cl>Rated Layouts</c>, responsible for maintaining the <co>backend</c>, <cp>Discord bots</c>, and other infrastructure outside of the mod client.\n<cy>This role does not have any special permission in-game.</c>",
+            "<cf>This user</c> is a developer for <cl>Rated Layouts</c>. They are responsible for maintaining the <co>Backend</c>, <cb>Discord Bot</c>, <cp>Geode Mod</c> and other infrastructure of this mod.\n<cy>This role does not have any special permission in-game.</c>",
             "OK")
             ->show();
     }
