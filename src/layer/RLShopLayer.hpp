@@ -30,7 +30,7 @@ private:
     };
     void onResetRubies();
     void onUnequipNameplate();
-    void onTestNameplate();
+    void onSubmitNameplate();
     void onForm();
 
     void onShopkeeper(CCObject* sender);

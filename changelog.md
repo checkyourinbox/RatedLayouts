@@ -1,5 +1,9 @@
 # v1.0.14
 
+#### Heya, It's ArcticWoof! Back again with another banger update for Rated Layouts.
+
+- Added **Nameplate Submission** directly in-game. This allows the owner to approve new nameplates directly.
+  - Check it out at the <cy>Shop Options</c> in the <cr>Ruby Shop</c>!
 - Changed the submission queue button sprite.
 - Changed the colors of the moderators/boosters roles and credits.
 - Add the missing Leaderboard Admin Badge on the comment cell.
@@ -7,6 +11,7 @@
 - Moderators Notes shows in multiple lines instead of single line.
 - Fixed issue where the Rubies value goes to the negative.
 - Moderator's Username are now clickable in the Moderators Notes Popup.
+- Added **Disable RL Search Button** in the settings
 
 # v1.0.13
 

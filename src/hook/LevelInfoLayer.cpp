@@ -123,7 +123,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
         leftMenu->updateLayout();
 
         // dev specfic button
-        if (rl::isUserOwner()) {
+        if (rl::isUserOwner() || rl::isUserDeveloper()) {
             auto devButtonSprite =
                 CCSprite::createWithSpriteFrameName("RL_starBig.png"_spr);
             devButtonSprite->setColor({255, 255, 0});

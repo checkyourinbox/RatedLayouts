@@ -1,5 +1,6 @@
 #include "RLNameplateItem.hpp"
 #include <fmt/core.h>
+#include "Geode/ui/NineSlice.hpp"
 
 using namespace geode::prelude;
 
@@ -17,16 +18,32 @@ namespace rl {
         CCObject* target,
         SEL_MenuHandler selector) {
         // create icon either from URL or fallback sprite frame
-        CCSprite* iconSpr = nullptr;
+        CCNode* iconNode = nullptr;
+        CCSize texSize = {40.f, 40.f};
+
         if (!iconUrl.empty()) {
             // lazy load remote image
             auto lazy = LazySprite::create({40, 40}, true);
             lazy->loadFromUrl(iconUrl, CCImage::kFmtPng, true);
             lazy->setAutoResize(true);
-            iconSpr = lazy;
+
+            auto stencil = NineSlice::createWithSpriteFrameName("RL_nameplateIconClip.png"_spr);
+            if (stencil) {
+                auto clip = CCClippingNode::create();
+                clip->setStencil(stencil);
+                clip->setAnchorPoint({0.5, 0.5});
+                clip->setAlphaThreshold(0.01f);
+                clip->setContentSize({40.f, 40.f});
+                clip->addChild(lazy);
+                // Position lazy and stencil in the center of the clipping node
+                lazy->setPosition({20.f, 20.f});
+                stencil->setPosition({20.f, 20.f});
+                iconNode = clip;
+            } else {
+                iconNode = lazy;
+            }
         }
 
-        auto texSize = iconSpr->getTextureRect().size;
         float width = std::max(texSize.width, 40.f);
         float height = std::max(texSize.height, 40.f);  // room for price label
 
@@ -34,8 +51,10 @@ namespace rl {
         auto container = CCSprite::create();
         container->setContentSize({width, height});
 
-        iconSpr->setPosition({width / 2.f, height / 2.f});
-        container->addChild(iconSpr);
+        if (iconNode) {
+            iconNode->setPosition({width / 2.f, height / 2.f});
+            container->addChild(iconNode);
+        }
 
         // price label underneath (show "Owned" when purchased)
         bool owned = isOwned(index);

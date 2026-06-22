@@ -22,17 +22,23 @@ namespace rl {
                Mod::get()->getSavedValue<bool>("isPlatAdmin");
     }
 
+    inline bool isUserDeveloper() {
+        return Mod::get()->getSavedValue<bool>("isDeveloper");
+    }
+
     // global admin/mod
     inline bool isUserAdmin() {
         return Mod::get()->getSavedValue<bool>("isClassicAdmin") ||
                Mod::get()->getSavedValue<bool>("isLeaderboardAdmin") ||
-               Mod::get()->getSavedValue<bool>("isPlatAdmin");
+               Mod::get()->getSavedValue<bool>("isPlatAdmin") ||
+               Mod::get()->getSavedValue<bool>("isDeveloper");
     }
 
     inline bool isUserMod() {
         return Mod::get()->getSavedValue<bool>("isClassicMod") ||
                Mod::get()->getSavedValue<bool>("isLeaderboardMod") ||
-               Mod::get()->getSavedValue<bool>("isPlatMod");
+               Mod::get()->getSavedValue<bool>("isPlatMod") ||
+               Mod::get()->getSavedValue<bool>("isDeveloper");
     }
 
     // specific admin/mod
@@ -87,7 +93,7 @@ namespace rl {
     inline void showOwnerInfo() {
         FLAlertLayer::create(
             "Rated Layouts Owner",
-            "<cf>This user</c> is the owner of <cl>Rated Layouts</c>. They have the ability to <cg>promote admins</c> and all permissions within <cl>Rated Layouts</c>.",
+            "<cf>This user</c> is the owner of <cl>Rated Layouts</c>. They have the ability to <cg>promote admins</c>, manages the entire <cg>community</c> and <co>moderation team</c> and has <cy>all permissions</c> within <cl>Rated Layouts</c>.",
             "OK")
             ->show();
     }
@@ -95,7 +101,7 @@ namespace rl {
     inline void showDevInfo() {
         FLAlertLayer::create(
             "Rated Layouts Developer",
-            "<cf>This user</c> is a developer for <cl>Rated Layouts</c>. They are responsible for maintaining the <co>Backend</c>, <cb>Discord Bot</c>, <cp>Geode Mod</c> and other infrastructure of this mod.\n<cy>This role does not have any special permission in-game.</c>",
+            "<cf>This user</c> is a developer for <cl>Rated Layouts</c>. They are responsible for maintaining the <co>Backend Server</c>, <cb>Discord Bot</c>, <cp>Geode Mod</c> and other infrastructure of this mod.",
             "OK")
             ->show();
     }

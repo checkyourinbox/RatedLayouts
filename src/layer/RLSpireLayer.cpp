@@ -108,7 +108,7 @@ void RLSpireLayer::onSpireClick(CCObject* sender) {
                 break;
             case 3:
                 response = "I heard <cp>The Oracle</c> is pretty <cl>knowledgeable</c>. Maybe you should ask it about this <cf>Spire</c>.";
-                m_indexDia++;
+                m_indexDia = 0;
                 break;
             default:
                 m_indexDia = 0;

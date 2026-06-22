@@ -50,7 +50,7 @@ class $modify(RLSupportLayer, SupportLayer) {
             keyBtn->setPosition({328, 55});
             m_fields->m_argonMenu->addChild(keyBtn);
 
-            if (rl::isUserHasPerms() || rl::isUserOwner()) {
+            if (rl::isUserHasPerms() || rl::isUserOwner() || rl::isUserDeveloper()) {
                 auto argonBtnSpr = ButtonSprite::create("Argon", 25, true, "bigFont.fnt", "GJ_button_04.png", 25.f, 1.f);
                 auto argonBtn = CCMenuItemSpriteExtra::create(
                     argonBtnSpr, this, menu_selector(RLSupportLayer::onGetArgon));
@@ -233,7 +233,7 @@ class $modify(RLSupportLayer, SupportLayer) {
                     Mod::get()->setSavedValue("argon_token", token);
 
                     // json body
-                    matjson::Value jsonBody = matjson::Value::object();                                                 
+                    matjson::Value jsonBody = matjson::Value::object();
                     jsonBody["argonToken"] = token;
                     jsonBody["accountId"] = GJAccountManager::get()->m_accountID;
                     auto masterKey = Mod::get()->getSavedValue<std::string>("masterKey");
@@ -280,6 +280,7 @@ class $modify(RLSupportLayer, SupportLayer) {
                             bool isPlatAdmin =
                                 json["isPlatAdmin"].asBool().unwrapOrDefault();
                             bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
+                            bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
 
                             Mod::get()->setSavedValue<bool>("isClassicMod", isClassicMod);
                             Mod::get()->setSavedValue<bool>("isClassicAdmin",
@@ -291,6 +292,7 @@ class $modify(RLSupportLayer, SupportLayer) {
                             Mod::get()->setSavedValue<bool>("isPlatMod", isPlatMod);
                             Mod::get()->setSavedValue<bool>("isPlatAdmin", isPlatAdmin);
                             Mod::get()->setSavedValue<bool>("isOwner", isOwner);
+                            Mod::get()->setSavedValue<bool>("isDeveloper", isDeveloper);
 
                             int roleCount = 0;
                             roleCount += isClassicMod ? 1 : 0;
@@ -299,6 +301,7 @@ class $modify(RLSupportLayer, SupportLayer) {
                             roleCount += isLeaderboardAdmin ? 1 : 0;
                             roleCount += isPlatMod ? 1 : 0;
                             roleCount += isPlatAdmin ? 1 : 0;
+                            roleCount += isDeveloper ? 1 : 0;
                             roleCount += isOwner ? 1 : 0;
 
                             if (roleCount > 1) {
@@ -333,6 +336,10 @@ class $modify(RLSupportLayer, SupportLayer) {
                                 log::info("Granted Owner role");
                                 m_uploadPopup->showSuccessMessage(
                                     "Granted Owner role.");
+                            } else if (isDeveloper) {
+                                log::info("Granted Developer role");
+                                m_uploadPopup->showSuccessMessage(
+                                    "Granted Developer role.");
                             } else {
                                 m_uploadPopup->showFailMessage("Failed! Nothing found.");
                             }

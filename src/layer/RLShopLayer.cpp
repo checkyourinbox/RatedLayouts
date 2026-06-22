@@ -1,7 +1,7 @@
 #include "RLShopLayer.hpp"
 #include "../include/RLDialogIcons.hpp"
 #include "../utils/RLNameplateItem.hpp"
-#include "../popup/RLNameplateTestPopup.hpp"
+#include "../popup/RLNameplateSubmitPopup.hpp"
 #include "RLBuyItemPopup.hpp"
 #include "RLSecretLayer1.hpp"
 #include <Geode/Enums.hpp>
@@ -254,15 +254,15 @@ void RLShopLayer::initDropdownMenu() {
     m_dropdownMenu->addCell(unequipBtn);
     unequipBtn->setPositionX(15.f);
 
-    auto nameplateTestBtn = CCLabelBMFont::create("Nameplate Test", "bigFont.fnt");
+    auto nameplateTestBtn = CCLabelBMFont::create("Nameplate Submission", "bigFont.fnt");
     nameplateTestBtn->limitLabelWidth(100, .7, .3);
     m_dropdownMenu->addCell(nameplateTestBtn);
     nameplateTestBtn->setPositionX(15.f);
 
-    auto submitBtn = CCLabelBMFont::create("Submission Form", "bigFont.fnt");
-    submitBtn->limitLabelWidth(100, .7, .3);
-    m_dropdownMenu->addCell(submitBtn);
-    submitBtn->setPositionX(15.f);
+    //auto submitBtn = CCLabelBMFont::create("Submission Form", "bigFont.fnt");
+    //submitBtn->limitLabelWidth(100, .7, .3);
+    //m_dropdownMenu->addCell(submitBtn);
+    //submitBtn->setPositionX(15.f);
 
     m_dropdownMenu->setCallback([this](size_t index, CCNode*) {
         switch (index) {
@@ -273,7 +273,7 @@ void RLShopLayer::initDropdownMenu() {
                 this->onUnequipNameplate();
                 break;
             case 3:
-                this->onTestNameplate();
+                this->onSubmitNameplate();
                 break;
             case 4:
                 this->onForm();
@@ -323,8 +323,8 @@ void RLShopLayer::onExitTransitionDidStart() {
     GameManager::sharedState()->playMenuMusic();
 }
 
-void RLShopLayer::onTestNameplate() {
-    auto popup = RLNameplateTestPopup::create();
+void RLShopLayer::onSubmitNameplate() {
+    auto popup = RLNameplateSubmitPopup::create();
     popup->show();
 }
 
