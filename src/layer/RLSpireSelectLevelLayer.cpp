@@ -4,6 +4,7 @@
 #include <cue/RepeatingBackground.hpp>
 #include "RLSpireSelectLevelLayer.hpp"
 #include "../include/RLConstants.hpp"
+#include "../include/RLRubyUtils.hpp"
 #include <unordered_set>
 #include <filesystem>
 
@@ -228,8 +229,8 @@ void RLSpireSelectLevelLayer::rewardRoomTransition() {
     Mod::get()->setSavedValue("highestSpireRoomExplored", m_spireRoomIndex);
 
     const int reward = 1000;
-    int oldRubies = Mod::get()->getSavedValue<int>("rubies", 0);
-    Mod::get()->setSavedValue<int>("rubies", oldRubies + reward);
+    int oldRubies = rl::getPlayerRubies();
+    rl::setPlayerRubies(oldRubies + reward);
 
     auto winSize = CCDirector::sharedDirector()->getWinSize();
     auto rewardPos = ccp(winSize.width / 2.0f, winSize.height / 2.0f);

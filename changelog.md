@@ -1,3 +1,8 @@
+# v1.0.15
+
+- Properly fixed the negative rubies.
+  - Completely forgot to actually save the rubies when it reverted.
+
 # v1.0.14
 
 #### Heya, It's ArcticWoof! Back again with another banger update for Rated Layouts.

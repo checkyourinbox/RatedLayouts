@@ -568,7 +568,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
                         log::warn("level already completed and rewarded beforehand");
                     }
 
-                    int rubies = Mod::get()->getSavedValue<int>("rubies");
+                    int rubies = rl::getPlayerRubies();
 
                     std::string medSprite =
                         isPlat ? "RL_planetMed.png"_spr : "RL_starMed.png"_spr;
@@ -611,7 +611,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
                                     playSound = true;
                                     int newTotal = rubies + remainingRubies;
                                     log::info("Adding {} rubies to {}", remainingRubies, rubies);
-                                    Mod::get()->setSavedValue<int>("rubies", newTotal);
+                                    rl::setPlayerRubies(newTotal);
 
                                     // persist collected amount locally
                                     int oldCollected = rubyInfo.collected;
@@ -774,7 +774,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
 
                     if (remainingRubies > 0) {
                         int newTotal = rubies + remainingRubies;
-                        Mod::get()->setSavedValue<int>("rubies", newTotal);
+                        rl::setPlayerRubies(newTotal);
 
                         int oldCollected = rubyInfo.collected;
                         int newCollected = oldCollected + remainingRubies;

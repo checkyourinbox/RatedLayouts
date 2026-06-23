@@ -325,7 +325,7 @@ class $modify(EndLevelLayer) {
                             // achievements for Sparks/Planets increment
                             int oldStars = Mod::get()->getSavedValue<int>("stars", 0);
                             int oldPlanets = Mod::get()->getSavedValue<int>("planets", 0);
-                            int oldRubies = Mod::get()->getSavedValue<int>("rubies", 0);
+                            int oldRubies = rl::getPlayerRubies();
 
                             int responseAmount = isPlat ? responsePlanets : responseStars;
                             int delta = responseAmount - (isPlat ? oldPlanets : oldStars);
@@ -660,10 +660,8 @@ class $modify(EndLevelLayer) {
                                             newCollected);
                                     }
 
-                                    int oldGlobal =
-                                        Mod::get()->getSavedValue<int>("rubies", 0);
-                                    Mod::get()->setSavedValue<int>(
-                                        "rubies", oldGlobal + remainingRubies);
+                                    int oldGlobal = rl::getPlayerRubies();
+                                    rl::setPlayerRubies(oldGlobal + remainingRubies);
 
                                     // only show notification when animation disabled
                                     if (Mod::get()->getSettingValue<bool>(

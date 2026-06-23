@@ -5,6 +5,7 @@
 #include "RLSecretLayer1.hpp"
 #include "RLRubiesCodePopup.hpp"
 #include "../include/RLAchievements.hpp"
+#include "../include/RLRubyUtils.hpp"
 #include <filesystem>
 
 using namespace geode::prelude;
@@ -452,8 +453,8 @@ void RLSecretLayer1::startRedeemRequest() {
             addRedeemedCode(self->m_redeemCode);
 
             // Reward the player with rubies and show currency animation
-            int oldRubies = Mod::get()->getSavedValue<int>("rubies", 0);
-            Mod::get()->setSavedValue<int>("rubies", oldRubies + reward);
+            int oldRubies = rl::getPlayerRubies();
+            rl::setPlayerRubies(oldRubies + reward);
 
             if (auto rewardLayer = CurrencyRewardLayer::create(
                     0, 0, 0, reward, CurrencySpriteType::Star, 0, CurrencySpriteType::Star, 0, self->m_oracleBtn->getPosition(), CurrencyRewardType::Default, 0.0, 1.0)) {

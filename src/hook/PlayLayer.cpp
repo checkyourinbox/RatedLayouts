@@ -312,9 +312,9 @@ class $modify(RLPlayLayer, PlayLayer) {
                     }
 
                     if (adjustedRubies > 0) {
-                        int oldRubies = Mod::get()->getSavedValue<int>("rubies");
+                        int oldRubies = rl::getPlayerRubies();
                         int newRubies = oldRubies + adjustedRubies;
-                        Mod::get()->setSavedValue<int>("rubies", newRubies);
+                        rl::setPlayerRubies(newRubies);
                         log::debug("Awarded {} rubies: {} -> {}", adjustedRubies, oldRubies, newRubies);
 
                         if (rewardLayer->m_diamondsLabel) {

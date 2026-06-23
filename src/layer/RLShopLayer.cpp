@@ -10,6 +10,7 @@
 #include <cue/DropdownNode.hpp>
 #include <fmt/format.h>
 #include "../include/RLConstants.hpp"
+#include "../include/RLRubyUtils.hpp"
 
 using namespace geode::prelude;
 using namespace rl;
@@ -74,9 +75,11 @@ bool RLShopLayer::init() {
     shopkeeperItem->m_scaleMultiplier = 1.02;
     menu->addChild(shopkeeperItem);
 
+    int currentRubies = rl::getPlayerRubies();
+
     // ruby counter label
     auto rubyLabel =
-        CCCounterLabel::create(std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)),
+        CCCounterLabel::create(currentRubies,
             "bigFont.fnt",
             FormatterType::Integer);
     rubyLabel->setPosition(
@@ -564,7 +567,7 @@ void RLShopLayer::updateShopPage() {
 void RLShopLayer::refreshRubyLabel() {
     if (!m_rubyLabel)
         return;
-    int val = std::max(0, Mod::get()->getSavedValue<int>("rubies", 0));
+    int val = rl::getPlayerRubies();
     m_rubyLabel->setTargetCount(val);
     m_rubyLabel->updateCounter(0.25f);
 }
@@ -654,12 +657,12 @@ void RLShopLayer::loadShopPage(int page) {
 }
 
 void RLShopLayer::onResetRubies() {
-    if (std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)) <= 0) {
-        Notification::create("You don't have any rubies to reset!",
-            NotificationIcon::Warning)
-            ->show();
-        return;
-    }
+    //if (rl::getPlayerRubies() <= 0) {
+    //    Notification::create("You don't have any rubies to reset!",
+    //        NotificationIcon::Warning)
+    //        ->show();
+    //    return;
+    //}
     createQuickPopup(
         "Clear Rubies",
         "Are you sure you want to <cr>clear your "
@@ -702,8 +705,8 @@ void RLShopLayer::onResetRubies() {
 
             Mod::get()->setSavedValue<int>("selected_nameplate", 0);
 
-            if (std::max(0, Mod::get()->getSavedValue<int>("rubies", 0)) > 0) {
-                Mod::get()->setSavedValue<int>("rubies", 0);
+            if (rl::getPlayerRubies() > 0) {
+                rl::setPlayerRubies(0);
                 Notification::create("Rubies have been reset!",
                     NotificationIcon::Info)
                     ->show();

@@ -4,6 +4,7 @@
 #include "../include/RLAchievements.hpp"
 #include "../include/RLConstants.hpp"
 #include "RLShopLayer.hpp"
+#include "../include/RLRubyUtils.hpp"
 #include "ccTypes.h"
 #include <Geode/binding/GJAccountManager.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>
@@ -162,7 +163,7 @@ void RLBuyItemPopup::onApply(CCObject* sender) {
 }
 
 void RLBuyItemPopup::onBuy(CCObject* sender) {
-    int current = Mod::get()->getSavedValue<int>("rubies", 0);
+    int current = rl::getPlayerRubies();
     if (current < m_value) {
         // gen random
         std::string response =
@@ -217,7 +218,7 @@ void RLBuyItemPopup::onBuy(CCObject* sender) {
         return;
     }
 
-    Mod::get()->setSavedValue<int>("rubies", current - m_value);
+    rl::setPlayerRubies(current - m_value);
 
     // persist ownership to owned_items.json
     if (RLNameplateItem::markOwned(m_itemId)) {

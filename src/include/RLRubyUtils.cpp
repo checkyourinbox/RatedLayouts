@@ -112,7 +112,12 @@ namespace rl {
     }
 
     int getPlayerRubies() noexcept {
-        return std::max(0, Mod::get()->getSavedValue<int>("rubies", 0));
+        int current = Mod::get()->getSavedValue<int>("rubies", 0);
+        if (current < 0) {
+            Mod::get()->setSavedValue<int>("rubies", 0);
+            current = 0;
+        }
+        return current;
     }
 
     void setPlayerRubies(int amount) noexcept {
