@@ -125,11 +125,8 @@ static const std::vector<Achievement>* getAchievements() {
     // id, name, desc, type, amount, sprite
     static std::vector<Achievement> achievements = []() {
         std::vector<Achievement> out;
-        for (AchievementList list : s_allAchievements) {
-            out.reserve(list.size());
-            for (auto const& ach : list)
-                out.push_back(ach);
-        }
+        for (AchievementList list : s_allAchievements)
+            out.append_range(list);
         return out;
     }();
     return &achievements;
