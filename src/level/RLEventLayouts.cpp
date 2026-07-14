@@ -3,6 +3,7 @@
 #include <Geode/ui/NineSlice.hpp>
 
 #include "RLConstants.hpp"
+#include "RLLevelInfo.hpp"
 #include "layer/RLLevelBrowserLayer.hpp"
 #include <Geode/modify/GameLevelManager.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
@@ -11,9 +12,6 @@
 #include <cstdio>
 
 using namespace geode::prelude;
-
-extern const std::string epicPString;
-extern const std::string legendaryPString;
 
 // helper prototypes
 static std::string formatTime(long seconds);

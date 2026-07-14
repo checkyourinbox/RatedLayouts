@@ -1,5 +1,6 @@
 #include "layer/RLLevelBrowserLayer.hpp"
 #include "RLConstants.hpp"
+#include "RLLevelInfo.hpp"
 #include "RLNetworkUtils.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelCell.hpp>
@@ -7,9 +8,6 @@
 #include <string>
 
 using namespace geode::prelude;
-
-extern const std::string legendaryPString;
-extern const std::string epicPString;
 
 class $modify(RLLevelCell, LevelCell) {
     struct Fields {
@@ -518,7 +516,7 @@ class $modify(RLLevelCell, LevelCell) {
                             difficultySprite->addChild(newEpicCoin, -1);
 
                             // add particle (if configured) on top of epic ring
-                            const std::string& pString = epicPString;
+                            const std::string& pString = rl::getEpicPString();
                             if (!pString.empty()) {
                                 if (auto existingP =
                                         newEpicCoin->getChildByID("rating-particles")) {
@@ -556,7 +554,7 @@ class $modify(RLLevelCell, LevelCell) {
                             difficultySprite->addChild(newLegendaryCoin, -1);
 
                             // particle legendary ring
-                            const std::string& pString = legendaryPString;
+                            const std::string& pString = rl::getLegendaryPString();
                             if (!pString.empty()) {
                                 // remove any existing particles on this coin to avoid dupes
                                 if (auto existingP =
@@ -592,7 +590,7 @@ class $modify(RLLevelCell, LevelCell) {
                 if (featured == 2) {
                     if (epicFeaturedCoin) {
                         if (!epicFeaturedCoin->getChildByID("rating-particles")) {
-                            const std::string& pString = epicPString;
+                            const std::string& pString = rl::getEpicPString();
                             if (!pString.empty()) {
                                 ParticleStruct pStruct;
                                 GameToolbox::particleStringToStruct(pString, pStruct);
@@ -614,7 +612,7 @@ class $modify(RLLevelCell, LevelCell) {
                 } else if (featured == 3) {
                     if (legendaryFeaturedCoin) {
                         if (!legendaryFeaturedCoin->getChildByID("rating-particles")) {
-                            const std::string& pString = legendaryPString;
+                            const std::string& pString = rl::getLegendaryPString();
                             if (!pString.empty()) {
                                 ParticleStruct pStruct;
                                 GameToolbox::particleStringToStruct(pString, pStruct);
