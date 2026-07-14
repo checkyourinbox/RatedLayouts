@@ -53,7 +53,7 @@
 			"required": true
 		},
         "alphalaneous.badgify": {
-            "version": ">=v1.0.0"
+            "version": ">=v1.0.1"
         },
 		"capeling.garage-stats-menu": {
 			"version": ">=v1.0.0",
