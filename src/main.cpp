@@ -1,5 +1,5 @@
-#include "include/RLConstants.hpp"
-#include "include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 #include <Geode/DefaultInclude.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/binding/FLAlertLayer.hpp>

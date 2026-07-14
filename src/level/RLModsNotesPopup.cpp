@@ -1,6 +1,6 @@
 #include "RLModsNotesPopup.hpp"
 #include <Geode/binding/CCSpriteGrayscale.hpp>
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 
 static std::string mapRatingToLevel(int rating) {
     switch (rating) {

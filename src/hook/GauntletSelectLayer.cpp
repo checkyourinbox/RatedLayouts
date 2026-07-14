@@ -2,7 +2,7 @@
 #include <Geode/modify/GauntletSelectLayer.hpp>
 
 #include "../layer/RLGauntletSelectLayer.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
 

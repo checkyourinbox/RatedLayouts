@@ -1,6 +1,6 @@
 #include "../layer/RLLevelBrowserLayer.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/utils/async.hpp>

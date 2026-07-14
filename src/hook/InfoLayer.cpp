@@ -3,8 +3,8 @@
 #include <Geode/modify/InfoLayer.hpp>
 #include <Geode/utils/async.hpp>
 
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 #include "../level/RLModsNotesPopup.hpp"
 #include "../level/RLReportPopup.hpp"
 

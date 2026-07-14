@@ -13,7 +13,8 @@ TableViewCell* RLAchievementCell(RLAchievements::Achievement const& ach, bool un
     // left icon
     cocos2d::CCSprite* icon = nullptr;
     if (!ach.sprite.empty()) {
-        icon = unlocked ? CCSprite::createWithSpriteFrameName(ach.sprite.c_str()) : CCSpriteGrayscale::createWithSpriteFrameName(ach.sprite.c_str());
+        const char* sprite = ach.sprite.data();
+        icon = unlocked ? CCSprite::createWithSpriteFrameName(sprite) : CCSpriteGrayscale::createWithSpriteFrameName(sprite);
     }
     if (icon) {
         icon->setPosition({30.f, 32.f});
@@ -42,7 +43,7 @@ TableViewCell* RLAchievementCell(RLAchievements::Achievement const& ach, bool un
     }
 
     // title
-    auto title = CCLabelBMFont::create(ach.name.c_str(), "goldFont.fnt");
+    auto title = CCLabelBMFont::create(ach.name.data(), "goldFont.fnt");
     title->setScale(0.7f);
     title->limitLabelWidth(200.f, 0.6f, 0.45f);
     title->setAnchorPoint({0.f, 1.f});
@@ -50,7 +51,7 @@ TableViewCell* RLAchievementCell(RLAchievements::Achievement const& ach, bool un
     cell->addChild(title);
 
     // description
-    auto desc = CCLabelBMFont::create(ach.desc.c_str(), "chatFont.fnt");
+    auto desc = CCLabelBMFont::create(ach.desc.data(), "chatFont.fnt");
     desc->setScale(0.7f);
     desc->setAnchorPoint({0.f, 1.f});
     desc->setPosition({60.f, 25.f});
@@ -58,8 +59,10 @@ TableViewCell* RLAchievementCell(RLAchievements::Achievement const& ach, bool un
     cell->addChild(desc);
 
     // status icon (check or lock)
-    cocos2d::CCSprite* status = CCSprite::createWithSpriteFrameName(unlocked ? "GJ_completesIcon_001.png" : "GJ_lock_001.png");
-    if (!status) status = CCSprite::create(unlocked ? "GJ_completesIcon_001.png" : "GJ_lock_001.png");
+    const char* frameName = unlocked ? "GJ_completesIcon_001.png" : "GJ_lock_001.png";
+    cocos2d::CCSprite* status = CCSprite::createWithSpriteFrameName(frameName);
+    if (!status)
+        status = CCSprite::create(frameName);
     if (status) {
         status->setPosition({300.f, 32.f});
         status->setScale(.8f);

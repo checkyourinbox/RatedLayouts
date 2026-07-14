@@ -1,6 +1,6 @@
 #include "RLGauntletLevelsLayer.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <algorithm>

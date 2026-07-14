@@ -1,5 +1,5 @@
 #include "RLSettingsV3.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLNetworkUtils.hpp"
 #include "Geode/ui/Popup.hpp"
 
 using namespace geode::prelude;

@@ -1,4 +1,4 @@
-#include "../include/RLRubyUtils.hpp"
+#include "RLRubyUtils.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;

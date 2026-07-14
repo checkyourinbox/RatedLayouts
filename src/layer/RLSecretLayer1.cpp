@@ -1,11 +1,11 @@
 #include <Geode/Geode.hpp>
 #include <Geode/binding/GJAccountManager.hpp>
-#include "../include/RLConstants.hpp"
-#include "../include/RLDialogIcons.hpp"
+#include "RLConstants.hpp"
+#include "RLDialogIcons.hpp"
 #include "RLSecretLayer1.hpp"
 #include "RLRubiesCodePopup.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLAchievements.hpp"
+#include "RLRubyUtils.hpp"
 #include <filesystem>
 
 using namespace geode::prelude;

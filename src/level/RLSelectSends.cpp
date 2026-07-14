@@ -1,5 +1,5 @@
 #include "RLSelectSends.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include "../layer/RLLevelBrowserLayer.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/MDTextArea.hpp"

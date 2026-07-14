@@ -1,6 +1,6 @@
 #include "RLAddCodePopup.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 #include <fmt/format.h>
 #include <Geode/binding/UploadActionPopup.hpp>
 #include "Geode/utils/general.hpp"

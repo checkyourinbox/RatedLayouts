@@ -3,7 +3,7 @@
 
 #include "../layer/RLSearchLayer.hpp"
 #include "../layer/RLMenuLayer.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
 

@@ -1,6 +1,6 @@
 #include "RLNewsAnnouncementPopup.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
 #include "Geode/utils/general.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/General.hpp>

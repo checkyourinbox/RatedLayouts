@@ -1,4 +1,4 @@
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include <capeling.garage-stats-menu/include/StatsDisplayAPI.h>
 
 #include <Geode/Geode.hpp>

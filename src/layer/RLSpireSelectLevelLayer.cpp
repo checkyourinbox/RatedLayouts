@@ -1,10 +1,10 @@
 #include <Geode/Geode.hpp>
-#include "../include/RLDialogIcons.hpp"
-#include "../include/RLAchievements.hpp"
+#include "RLDialogIcons.hpp"
+#include "RLAchievements.hpp"
 #include <cue/RepeatingBackground.hpp>
 #include "RLSpireSelectLevelLayer.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLRubyUtils.hpp"
 #include <unordered_set>
 #include <filesystem>
 
@@ -236,18 +236,15 @@ void RLSpireSelectLevelLayer::rewardRoomTransition() {
     auto rewardPos = ccp(winSize.width / 2.0f, winSize.height / 2.0f);
 
     if (auto rewardLayer = CurrencyRewardLayer::create(
-            0,
-            0,
-            0,
-            reward,
+            0, 0, 0,
+            /*diamonds=*/reward,
             CurrencySpriteType::Star,
-            0,
+            /*keyCount=*/0,
             CurrencySpriteType::Star,
-            0,
+            /*orbs=*/0,
             rewardPos,
             CurrencyRewardType::Default,
-            0.0,
-            1.0)) {
+            /*yOffset=*/0.0, /*time=*/1.0)) {
         if (rewardLayer->m_diamondsLabel) {
             rewardLayer->m_diamonds = 0;
             rewardLayer->incrementDiamondsCount(oldRubies);

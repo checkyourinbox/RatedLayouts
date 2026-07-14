@@ -1,7 +1,7 @@
 #include <Geode/Geode.hpp>
 #include "RLQueueLevelPopup.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
 

@@ -3,7 +3,7 @@
 #include <Geode/binding/GJCommentListLayer.hpp>
 #include <cue/ListNode.hpp>
 #include "RLAchievementCell.hpp"
-#include "../include/RLAchievements.hpp"
+#include "RLAchievements.hpp"
 
 using namespace geode::prelude;
 
@@ -64,34 +64,29 @@ void RLAchievementsPopup::populate(int tabIndex) {
 
     m_listNode->clear();
 
-    auto all = RLAchievements::getAll();
+    RLAchievements::AchievementList all;
     int displayIndex = 0;
 
-    // compute totals for this tab/category
-    int totalCount = 0;
-    int unlockedCount = 0;
-    for (auto const& ach : all) {
-        if (tabIndex != 0) {
-            auto type = tabIndexToType(tabIndex);
-            if (ach.type != type) continue;
-        }
-        totalCount++;
-        if (RLAchievements::isAchieved(ach.id)) unlockedCount++;
+    if (tabIndex == 0)
+        all = RLAchievements::getAll();
+    else {
+        auto type = tabIndexToType(tabIndex);
+        all = RLAchievements::getAllByType()[type];
     }
 
+    // compute totals for this tab/category
+    const int totalCount = int(all.size());
+    int unlockedCount = 0;
     for (auto const& ach : all) {
-        if (tabIndex != 0) {
-            auto type = tabIndexToType(tabIndex);
-            if (ach.type != type) continue;
-        }
-        bool unlocked = RLAchievements::isAchieved(ach.id);
-        auto cell = RLAchievementCell(ach, unlocked);
+        const bool unlocked = RLAchievements::isAchieved(ach.id.data());
+        if (unlocked) unlockedCount++;
+        auto* cell = makeRLAchievementCell(ach, unlocked);
         if (!cell) continue;
 
         if (m_listNode) {
             m_listNode->addCell(cell);
         }
-        displayIndex++;
+        displayIndex++; // Unused?
     }
 
     if (m_listNode) {
@@ -101,11 +96,12 @@ void RLAchievementsPopup::populate(int tabIndex) {
     // update status label
     if (m_statusLabel) {
         int pct = totalCount ? (unlockedCount * 100 / totalCount) : 0;
-        std::string status = std::string("Completed: ") + numToString(unlockedCount) + " / " + numToString(totalCount) + " (" + numToString(pct) + "%)";
+        std::string status = fmt::format("Completed: {} / {} ({}%)", unlockedCount, totalCount, pct);
         m_statusLabel->setString(status.c_str());
     }
 
-    if (m_scrollLayer) m_scrollLayer->scrollToTop();
+    if (m_scrollLayer)
+        m_scrollLayer->scrollToTop();
 }
 
 bool RLAchievementsPopup::init() {
@@ -114,6 +110,7 @@ bool RLAchievementsPopup::init() {
 
     setTitle("Rated Layouts Achievements");
 
+    // TODO: Cache getContentSize()?
     m_tabMenu = CCMenu::create();
     m_tabMenu->setPosition({m_mainLayer->getContentSize().width - 60, m_mainLayer->getContentSize().height / 2 - 10});
     m_tabMenu->setContentSize({100, 225});

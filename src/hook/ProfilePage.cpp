@@ -5,8 +5,8 @@
 #include <Geode/utils/async.hpp>
 #include <argon/argon.hpp>
 
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
 #include "../layer/RLLevelBrowserLayer.hpp"
 #include "../player/RLDifficultyTotalPopup.hpp"
 #include "../player/RLUserControl.hpp"

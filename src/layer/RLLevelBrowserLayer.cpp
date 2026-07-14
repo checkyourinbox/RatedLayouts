@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <charconv>
 
-#include "../include/RLLayerBackground.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLLayerBackground.hpp"
+#include "RLConstants.hpp"
 #include <cue/RepeatingBackground.hpp>
 #include <string>
 

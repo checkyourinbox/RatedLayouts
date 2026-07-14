@@ -1,6 +1,6 @@
 #include "RLRubiesCodePopup.hpp"
 #include "RLAddCodePopup.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>
 #include <cue/ListNode.hpp>

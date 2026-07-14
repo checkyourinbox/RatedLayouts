@@ -12,10 +12,9 @@ project(RatedLayouts VERSION 1.0.0)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/src/custom)
-include_directories(${CMAKE_SOURCE_DIR}/src/layer)
-include_directories(${CMAKE_SOURCE_DIR}/src/popup)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC "src/include" "src/custom" "src/layer" "src/popup"
+)
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
@@ -32,4 +31,3 @@ CPMAddPackage("gh:dankmeme01/cue#211f644")
 target_link_libraries(${PROJECT_NAME} cue)
 
 setup_geode_mod(${PROJECT_NAME})
-

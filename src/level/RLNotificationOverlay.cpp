@@ -1,6 +1,6 @@
 #include "RLNotificationOverlay.hpp"
 #include "RLNotificationAlert.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;

@@ -1,5 +1,5 @@
 #include "RLShopLayer.hpp"
-#include "../include/RLDialogIcons.hpp"
+#include "RLDialogIcons.hpp"
 #include "../utils/RLNameplateItem.hpp"
 #include "../popup/RLNameplateSubmitPopup.hpp"
 #include "RLBuyItemPopup.hpp"
@@ -9,8 +9,8 @@
 #include <Geode/binding/FMODAudioEngine.hpp>
 #include <cue/DropdownNode.hpp>
 #include <fmt/format.h>
-#include "../include/RLConstants.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLRubyUtils.hpp"
 
 using namespace geode::prelude;
 using namespace rl;

@@ -1,8 +1,8 @@
 #include "RLCreditsPopup.hpp"
-#include "../include/RLAchievements.hpp"
+#include "RLAchievements.hpp"
 #include <Geode/Geode.hpp>
 #include <cue/ListNode.hpp>
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 
 using namespace geode::prelude;
 RLCreditsPopup* RLCreditsPopup::create() {

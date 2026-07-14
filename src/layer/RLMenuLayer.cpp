@@ -15,9 +15,9 @@
 #include "../level/RLNotificationOverlay.hpp"
 #include "../level/RLSelectSends.hpp"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLLayerBackground.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
+#include "RLLayerBackground.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "RLAchievementsPopup.hpp"
 #include "RLAddDialogue.hpp"
@@ -31,9 +31,9 @@
 #include "RLShopLayer.hpp"
 #include "RLSpireLayer.hpp"
 #include "RLGuideInfoPopup.hpp"
-#include "../include/RLDialogIcons.hpp"
+#include "RLDialogIcons.hpp"
 #include "../popup/RLQueueLevelPopup.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLRubyUtils.hpp"
 
 struct ModInfo {
     std::string message;

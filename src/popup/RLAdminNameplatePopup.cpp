@@ -1,5 +1,5 @@
 #include "RLAdminNameplatePopup.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/binding/UploadActionPopup.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>

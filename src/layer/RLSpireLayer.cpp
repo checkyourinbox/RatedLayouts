@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#include "../include/RLDialogIcons.hpp"
+#include "RLDialogIcons.hpp"
 #include "RLSpireLayer.hpp"
 #include "RLSpireSelectLevelLayer.hpp"
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
@@ -92,7 +92,7 @@ void RLSpireLayer::onEnter() {
 void RLSpireLayer::onSpireClick(CCObject* sender) {
     if (!Mod::get()->getSavedValue<bool>("hasCode")) {
         DialogObject* dialogObj = nullptr;
-        std::string response = "";
+        const char* response = "";
         switch (m_indexDia) {
             case 0:
                 response = "<cf>The Spire</c> isn't opening.";
@@ -115,7 +115,7 @@ void RLSpireLayer::onSpireClick(CCObject* sender) {
                 break;
         }
 
-        dialogObj = DialogObject::create("ArcticWoof", response.c_str(), 1, 1.f, false, ccWHITE);
+        dialogObj = DialogObject::create("ArcticWoof", response, 1, 1.f, false, ccWHITE);
 
         auto dialog = DialogLayer::createDialogLayer(dialogObj, nullptr, 2);
         dialog->addToMainScene();

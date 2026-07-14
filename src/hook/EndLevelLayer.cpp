@@ -1,9 +1,9 @@
-#include "../include/RLAchievements.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLAchievements.hpp"
+#include "RLRubyUtils.hpp"
 #include "Geode/cocos/textures/CCTexture2D.h"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EndLevelLayer.hpp>
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include "../layer/RLSpireSelectLevelLayer.hpp"
 
 using namespace geode::prelude;

@@ -6,7 +6,7 @@
 #include "Geode/ui/General.hpp"
 #include "Geode/ui/TextInput.hpp"
 #include "Geode/utils/general.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include "RLAdminNameplatePopup.hpp"
 
 using namespace geode::prelude;

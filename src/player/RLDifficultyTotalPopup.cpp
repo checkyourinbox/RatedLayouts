@@ -1,6 +1,6 @@
 #include "RLDifficultyTotalPopup.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
 
 #include <unordered_map>
 using namespace geode::prelude;

@@ -1,7 +1,7 @@
 #include "RLAddDialogue.hpp"
 #include <Geode/binding/FLAlertLayer.hpp>
-#include "../include/RLNetworkUtils.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
 
 using namespace geode::prelude;
 

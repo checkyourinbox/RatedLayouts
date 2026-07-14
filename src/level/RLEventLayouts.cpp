@@ -2,7 +2,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/ui/NineSlice.hpp>
 
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 #include "../layer/RLLevelBrowserLayer.hpp"
 #include <Geode/modify/GameLevelManager.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>

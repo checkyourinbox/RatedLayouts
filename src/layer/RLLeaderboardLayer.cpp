@@ -1,10 +1,10 @@
 #include "RLLeaderboardLayer.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLLayerBackground.hpp"
+#include "RLAchievements.hpp"
+#include "RLLayerBackground.hpp"
 #include <Geode/binding/CCSpriteGrayscale.hpp>
 #include <cue/RepeatingBackground.hpp>
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 
 bool RLLeaderboardLayer::init() {
     if (!CCLayer::init())

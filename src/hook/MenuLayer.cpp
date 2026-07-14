@@ -1,7 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include "../layer/RLMenuLayer.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
 

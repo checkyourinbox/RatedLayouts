@@ -7,12 +7,12 @@
 #include <argon/argon.hpp>
 #include <cmath>
 
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
 #include "../level/RLCommunityVotePopup.hpp"
 #include "../level/RLModRatePopup.hpp"
-#include "../include/RLRubyUtils.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLRubyUtils.hpp"
+#include "RLNetworkUtils.hpp"
 #include "Geode/cocos/textures/CCTexture2D.h"
 
 using namespace geode::prelude;

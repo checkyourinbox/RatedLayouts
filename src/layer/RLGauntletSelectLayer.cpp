@@ -1,5 +1,5 @@
 #include "RLGauntletSelectLayer.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLConstants.hpp"
 
 #include <Geode/Geode.hpp>
 #include <Geode/binding/BoomScrollLayer.hpp>
