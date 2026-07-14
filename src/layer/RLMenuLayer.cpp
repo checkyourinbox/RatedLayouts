@@ -1,4 +1,4 @@
-#include "RLMenuLayer.hpp"
+#include "layer/RLMenuLayer.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/binding/GJAccountManager.hpp>
@@ -11,28 +11,28 @@
 #include <cue/RepeatingBackground.hpp>
 #include <optional>
 
-#include "../level/RLEventLayouts.hpp"
-#include "../level/RLNotificationOverlay.hpp"
-#include "../level/RLSelectSends.hpp"
+#include "level/RLEventLayouts.hpp"
+#include "level/RLNotificationOverlay.hpp"
+#include "level/RLSelectSends.hpp"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
 #include "RLLayerBackground.hpp"
 #include "Geode/ui/Popup.hpp"
-#include "RLAchievementsPopup.hpp"
-#include "RLAddDialogue.hpp"
-#include "RLNewsAnnouncementPopup.hpp"
-#include "RLCreditsPopup.hpp"
-#include "RLDonationPopup.hpp"
-#include "RLGauntletSelectLayer.hpp"
-#include "RLLeaderboardLayer.hpp"
-#include "RLLevelBrowserLayer.hpp"
-#include "RLSearchLayer.hpp"
-#include "RLShopLayer.hpp"
-#include "RLSpireLayer.hpp"
-#include "RLGuideInfoPopup.hpp"
+#include "popup/RLAchievementsPopup.hpp"
+#include "popup/RLAddDialogue.hpp"
+#include "popup/RLNewsAnnouncementPopup.hpp"
+#include "popup/RLCreditsPopup.hpp"
+#include "popup/RLDonationPopup.hpp"
+#include "layer/RLGauntletSelectLayer.hpp"
+#include "layer/RLLeaderboardLayer.hpp"
+#include "layer/RLLevelBrowserLayer.hpp"
+#include "layer/RLSearchLayer.hpp"
+#include "layer/RLShopLayer.hpp"
+#include "layer/RLSpireLayer.hpp"
+#include "popup/RLGuideInfoPopup.hpp"
 #include "RLDialogIcons.hpp"
-#include "../popup/RLQueueLevelPopup.hpp"
+#include "popup/RLQueueLevelPopup.hpp"
 #include "RLRubyUtils.hpp"
 
 struct ModInfo {

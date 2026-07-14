@@ -1,9 +1,9 @@
-#include "RLBuyItemPopup.hpp"
+#include "popup/RLBuyItemPopup.hpp"
 #include "RLDialogIcons.hpp"
-#include "../utils/RLNameplateItem.hpp"
+#include "utils/RLNameplateItem.hpp"
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
-#include "RLShopLayer.hpp"
+#include "layer/RLShopLayer.hpp"
 #include "RLRubyUtils.hpp"
 #include "ccTypes.h"
 #include <Geode/binding/GJAccountManager.hpp>

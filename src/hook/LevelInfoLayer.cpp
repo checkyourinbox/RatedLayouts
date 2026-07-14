@@ -9,8 +9,8 @@
 
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
-#include "../level/RLCommunityVotePopup.hpp"
-#include "../level/RLModRatePopup.hpp"
+#include "level/RLCommunityVotePopup.hpp"
+#include "level/RLModRatePopup.hpp"
 #include "RLRubyUtils.hpp"
 #include "RLNetworkUtils.hpp"
 #include "Geode/cocos/textures/CCTexture2D.h"

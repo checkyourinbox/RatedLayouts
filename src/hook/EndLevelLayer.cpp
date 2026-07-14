@@ -4,7 +4,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EndLevelLayer.hpp>
 #include "RLConstants.hpp"
-#include "../layer/RLSpireSelectLevelLayer.hpp"
+#include "layer/RLSpireSelectLevelLayer.hpp"
 
 using namespace geode::prelude;
 using namespace rl;

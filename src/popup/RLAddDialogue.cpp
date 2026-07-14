@@ -1,4 +1,4 @@
-#include "RLAddDialogue.hpp"
+#include "popup/RLAddDialogue.hpp"
 #include <Geode/binding/FLAlertLayer.hpp>
 #include "RLNetworkUtils.hpp"
 #include "RLConstants.hpp"

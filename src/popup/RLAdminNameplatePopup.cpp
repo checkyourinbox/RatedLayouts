@@ -1,4 +1,4 @@
-#include "RLAdminNameplatePopup.hpp"
+#include "popup/RLAdminNameplatePopup.hpp"
 #include "RLConstants.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/binding/UploadActionPopup.hpp>

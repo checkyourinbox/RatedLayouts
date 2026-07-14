@@ -1,4 +1,4 @@
-#include "RLNameplateSubmitPopup.hpp"
+#include "popup/RLNameplateSubmitPopup.hpp"
 #include <Geode/binding/GJAccountManager.hpp>
 #include <Geode/modify/CommentCell.hpp>
 #include <Geode/utils/file.hpp>
@@ -7,7 +7,7 @@
 #include "Geode/ui/TextInput.hpp"
 #include "Geode/utils/general.hpp"
 #include "RLConstants.hpp"
-#include "RLAdminNameplatePopup.hpp"
+#include "popup/RLAdminNameplatePopup.hpp"
 
 using namespace geode::prelude;
 

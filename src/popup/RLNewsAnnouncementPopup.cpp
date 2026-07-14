@@ -1,4 +1,4 @@
-#include "RLNewsAnnouncementPopup.hpp"
+#include "popup/RLNewsAnnouncementPopup.hpp"
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
 #include "Geode/utils/general.hpp"

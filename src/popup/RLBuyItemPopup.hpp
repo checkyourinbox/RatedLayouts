@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RLShopLayer.hpp"
+#include "layer/RLShopLayer.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <string>

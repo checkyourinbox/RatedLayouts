@@ -5,8 +5,8 @@
 
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
-#include "../level/RLModsNotesPopup.hpp"
-#include "../level/RLReportPopup.hpp"
+#include "level/RLModsNotesPopup.hpp"
+#include "level/RLReportPopup.hpp"
 
 using namespace geode::prelude;
 

@@ -1,4 +1,4 @@
-#include "RLAnnouncementPopup.hpp"
+#include "popup/RLAnnouncementPopup.hpp"
 #include "RLConstants.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/NineSlice.hpp>

@@ -1,4 +1,4 @@
-#include "RLDifficultyTotalPopup.hpp"
+#include "player/RLDifficultyTotalPopup.hpp"
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
 

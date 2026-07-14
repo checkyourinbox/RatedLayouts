@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#include "RLQueueLevelPopup.hpp"
+#include "popup/RLQueueLevelPopup.hpp"
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
 

@@ -1,5 +1,5 @@
-#include "RLRubiesCodePopup.hpp"
-#include "RLAddCodePopup.hpp"
+#include "popup/RLRubiesCodePopup.hpp"
+#include "popup/RLAddCodePopup.hpp"
 #include "RLConstants.hpp"
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>

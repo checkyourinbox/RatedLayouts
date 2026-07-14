@@ -2,7 +2,7 @@
 #include "RLDialogIcons.hpp"
 #include "RLAchievements.hpp"
 #include <cue/RepeatingBackground.hpp>
-#include "RLSpireSelectLevelLayer.hpp"
+#include "layer/RLSpireSelectLevelLayer.hpp"
 #include "RLConstants.hpp"
 #include "RLRubyUtils.hpp"
 #include <unordered_set>

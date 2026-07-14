@@ -3,7 +3,7 @@
 #include "RLConstants.hpp"
 #include "RLDialogIcons.hpp"
 #include "RLSecretLayer1.hpp"
-#include "RLRubiesCodePopup.hpp"
+#include "popup/RLRubiesCodePopup.hpp"
 #include "RLAchievements.hpp"
 #include "RLRubyUtils.hpp"
 #include <filesystem>

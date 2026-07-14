@@ -1,4 +1,4 @@
-#include "../layer/RLLevelBrowserLayer.hpp"
+#include "layer/RLLevelBrowserLayer.hpp"
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
 #include <Geode/Geode.hpp>

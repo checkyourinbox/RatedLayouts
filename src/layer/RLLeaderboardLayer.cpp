@@ -1,4 +1,4 @@
-#include "RLLeaderboardLayer.hpp"
+#include "layer/RLLeaderboardLayer.hpp"
 #include "RLAchievements.hpp"
 #include "RLLayerBackground.hpp"
 #include <Geode/binding/CCSpriteGrayscale.hpp>

@@ -1,8 +1,8 @@
-#include "RLShopLayer.hpp"
+#include "layer/RLShopLayer.hpp"
 #include "RLDialogIcons.hpp"
-#include "../utils/RLNameplateItem.hpp"
-#include "../popup/RLNameplateSubmitPopup.hpp"
-#include "RLBuyItemPopup.hpp"
+#include "utils/RLNameplateItem.hpp"
+#include "popup/RLNameplateSubmitPopup.hpp"
+#include "popup/RLBuyItemPopup.hpp"
 #include "RLSecretLayer1.hpp"
 #include <Geode/Enums.hpp>
 #include <Geode/Geode.hpp>

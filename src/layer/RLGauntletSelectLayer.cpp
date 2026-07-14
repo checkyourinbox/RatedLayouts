@@ -1,4 +1,4 @@
-#include "RLGauntletSelectLayer.hpp"
+#include "layer/RLGauntletSelectLayer.hpp"
 #include "RLConstants.hpp"
 
 #include <Geode/Geode.hpp>
@@ -117,8 +117,8 @@ static bool isGauntletLevelCompleted(int levelId) {
     return false;
 }
 
-#include "RLAnnouncementPopup.hpp"
-#include "RLGauntletLevelsLayer.hpp"
+#include "popup/RLAnnouncementPopup.hpp"
+#include "layer/RLGauntletLevelsLayer.hpp"
 
 using namespace geode::prelude;
 

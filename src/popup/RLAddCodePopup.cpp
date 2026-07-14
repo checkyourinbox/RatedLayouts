@@ -1,4 +1,4 @@
-#include "RLAddCodePopup.hpp"
+#include "popup/RLAddCodePopup.hpp"
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
 #include <fmt/format.h>

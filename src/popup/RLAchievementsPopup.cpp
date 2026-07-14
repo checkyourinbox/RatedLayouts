@@ -1,8 +1,8 @@
-#include "RLAchievementsPopup.hpp"
+#include "popup/RLAchievementsPopup.hpp"
 
 #include <Geode/binding/GJCommentListLayer.hpp>
 #include <cue/ListNode.hpp>
-#include "RLAchievementCell.hpp"
+#include "custom/RLAchievementCell.hpp"
 #include "RLAchievements.hpp"
 
 using namespace geode::prelude;

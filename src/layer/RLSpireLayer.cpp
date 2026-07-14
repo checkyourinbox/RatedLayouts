@@ -1,7 +1,7 @@
 #include <Geode/Geode.hpp>
 #include "RLDialogIcons.hpp"
-#include "RLSpireLayer.hpp"
-#include "RLSpireSelectLevelLayer.hpp"
+#include "layer/RLSpireLayer.hpp"
+#include "layer/RLSpireSelectLevelLayer.hpp"
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/DialogLayer.hpp>
 #include <cue/RepeatingBackground.hpp>

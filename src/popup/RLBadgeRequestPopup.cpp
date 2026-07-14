@@ -1,4 +1,4 @@
-#include "RLBadgeRequestPopup.hpp"
+#include "popup/RLBadgeRequestPopup.hpp"
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
 

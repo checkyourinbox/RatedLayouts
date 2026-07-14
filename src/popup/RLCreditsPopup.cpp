@@ -1,4 +1,4 @@
-#include "RLCreditsPopup.hpp"
+#include "popup/RLCreditsPopup.hpp"
 #include "RLAchievements.hpp"
 #include <Geode/Geode.hpp>
 #include <cue/ListNode.hpp>
