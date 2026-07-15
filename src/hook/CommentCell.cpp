@@ -9,6 +9,8 @@
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
 
+// TODO: Merge implementation between this and ProfilePage
+
 using namespace geode::prelude;
 
 class $modify(RLCommentCell, CommentCell) {

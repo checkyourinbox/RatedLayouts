@@ -16,6 +16,8 @@
 #include "Geode/ui/BasedButtonSprite.hpp"
 #include "Geode/utils/general.hpp"
 
+// TODO: Merge implementation between this and CommentCell
+
 using namespace geode::prelude;
 
 class $modify(RLProfilePage, ProfilePage) {
@@ -511,13 +513,9 @@ class $modify(RLProfilePage, ProfilePage) {
 
     void continueProfileFetch(int accountId) {
         std::string token = Mod::get()->getSavedValue<std::string>("argon_token");
-
-        matjson::Value jsonBody = matjson::Value::object();
-        jsonBody["argonToken"] = token;
-        jsonBody["accountId"] = accountId;
-
         auto postReq = web::WebRequest();
-        postReq.bodyJSON(jsonBody);
+        postReq.bodyJSON(matjson::makeObject({{"argonToken", token},
+            {"accountId", accountId}}));
 
         if (m_fields->m_profileInFlight &&
             m_fields->m_profileForAccount == accountId) {

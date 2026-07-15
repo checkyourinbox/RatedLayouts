@@ -30,10 +30,12 @@ namespace rl {
     ////////////////////////////////////////////////////////////////////////////
     // Caches
 
+    // TODO: Tbh this whole setup is clunky, refactor it all
+
     using RequestTimestamp = std::int64_t;
 
     inline RequestTimestamp getCurrentTimestamp() {
-        // TODO: Look into using chrono instead of std::time
+        // TODO: Look into using alternative to std::time
         return static_cast<RequestTimestamp>(std::time(nullptr));
     }
 

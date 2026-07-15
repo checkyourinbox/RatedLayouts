@@ -5,6 +5,8 @@
 
 using namespace geode::prelude;
 
+// TODO: Cache these values better
+
 namespace rl {
     // Account ID of ArcticWoof
     constexpr int ARCTICWOOF_ACCOUNT_ID = 7689052;
