@@ -3,6 +3,7 @@
 #include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLBadgeRequestPopup* RLBadgeRequestPopup::create() {
     auto ret = new RLBadgeRequestPopup();

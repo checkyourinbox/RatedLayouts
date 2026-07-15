@@ -5,6 +5,8 @@
 #include "RLConstants.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
+
 RLCreditsPopup* RLCreditsPopup::create() {
     auto ret = new RLCreditsPopup();
 

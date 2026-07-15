@@ -10,6 +10,7 @@
 #include "popup/RLAdminNameplatePopup.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 arc::Future<void> RLNameplateSubmitPopup::pickAndLoadPng() {
     auto popup = WeakRef(this);

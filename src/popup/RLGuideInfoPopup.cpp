@@ -7,6 +7,7 @@
 #include "popup/RLGuideInfoPopup.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLGuideInfoPopup* RLGuideInfoPopup::create() {
     auto ret = new RLGuideInfoPopup();

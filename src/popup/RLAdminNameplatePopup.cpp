@@ -7,6 +7,7 @@
 #include <Geode/binding/ProfilePage.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLAdminNameplatePopup* RLAdminNameplatePopup::create() {
     auto ret = new RLAdminNameplatePopup();

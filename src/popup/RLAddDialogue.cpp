@@ -4,6 +4,7 @@
 #include "RLConstants.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLAddDialogue* RLAddDialogue::create() {
     auto popup = new RLAddDialogue();

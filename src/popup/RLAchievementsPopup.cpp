@@ -6,6 +6,7 @@
 #include "RLAchievements.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLAchievementsPopup* RLAchievementsPopup::create() {
     auto ret = new RLAchievementsPopup();
