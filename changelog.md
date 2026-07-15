@@ -1,3 +1,10 @@
+# v1.0.16
+
+#### Internal fixes
+
+- Cache no longer incorrectly copied.
+- Performance improvements (cache, achievements).
+
 # v1.0.15
 
 #### Hotfix in regards to how negative rubies is fixed.
