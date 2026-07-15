@@ -6,7 +6,7 @@
 #include "Geode/utils/general.hpp"
 
 using namespace geode::prelude;
-using namespace rl;
+//using namespace rl;
 
 RLAddCodePopup* RLAddCodePopup::create(const std::string& code, const std::string& reward, long long id, std::function<void()> onSuccess) {
     auto popup = new RLAddCodePopup();

@@ -10,9 +10,11 @@ IncludeBlocks: Preserve
 IndentAccessModifiers: false
 BinPackArguments: false
 BinPackParameters: false
+
 BreakConstructorInitializers: AfterColon
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
+
 AllowShortIfStatementsOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 
@@ -20,7 +22,8 @@ IndentWidth: 4
 ColumnLimit: 0
 AccessModifierOffset: -4
 
-AlignAfterOpenBracket: DontAlign
+AlignAfterOpenBracket: Align
+#AlignAfterOpenBracket: DontAlign
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakBeforeMultilineStrings: true

@@ -4,7 +4,7 @@
 #include <Geode/ui/NineSlice.hpp>
 
 using namespace geode::prelude;
-using namespace rl;
+//using namespace rl;
 
 RLAnnouncementPopup* RLAnnouncementPopup::create() {
     auto popup = new RLAnnouncementPopup();
