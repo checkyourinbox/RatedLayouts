@@ -7,10 +7,29 @@
 #include <filesystem>
 #include <optional>
 #include <string_view>
+#include "RLConfig.hpp"
+#include "RLConstants.hpp"
 
 using namespace geode::prelude;
 
 namespace rl {
+    using JSONInitListType = std::initializer_list<std::pair<std::string, matjson::Value>>;
+
+    inline std::string getAPIEndpoint(std::string_view dest) {
+        return fmt::format("{}/{}", rl::BASE_API_URL, dest);
+    }
+
+    inline web::WebRequest createWebRequest(JSONInitListType entries) {
+        web::WebRequest req;
+        req.bodyJSON(matjson::makeObject(entries));
+        return req;
+    }
+    inline web::WebRequest createWebRequest(matjson::Value const& json) {
+        web::WebRequest req;
+        req.bodyJSON(json);
+        return req;
+    }
+
     // Returns the server's response body as the error message when it is
     // non-empty, otherwise falls back to the provided fallback string.
     inline std::string getResponseFailMessage(web::WebResponse const& response,
@@ -70,6 +89,7 @@ namespace rl {
     struct RequestCacheEntry {
         matjson::Value json;
         RequestTimestamp timestamp = 0;
+
     public:
         bool isValid() const {
             return isRequestCacheValid(timestamp);
@@ -111,12 +131,10 @@ struct matjson::Serialize<rl::RequestCacheEntry> {
         if (!data.isObject()) [[unlikely]]
             return geode::Err("data is not an object!");
         GEODE_UNWRAP_INTO(rl::RequestTimestamp time, value["timestamp"].asInt());
-        return geode::Ok(rl::RequestCacheEntry { std::move(data), time });
+        return geode::Ok(rl::RequestCacheEntry{std::move(data), time});
     }
     static matjson::Value toJson(const rl::RequestCacheEntry& entry) {
-        return matjson::makeObject({
-            { "data", entry.json },
-            { "timestamp", entry.timestamp }
-        });
+        return matjson::makeObject({{"data", entry.json},
+                                    {"timestamp", entry.timestamp}});
     }
 };

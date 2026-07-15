@@ -1,10 +1,10 @@
 #include "RLNetworkUtils.hpp"
-#include "utils/NoHashHasher.hpp"
 #include <Geode/Geode.hpp>
 //#include <argon/argon.hpp>
 #include <mutex>
 #include <optional>
 #include <unordered_map>
+#include "utils/NoHashHasher.hpp"
 
 using namespace geode::prelude;
 using namespace rl;
@@ -22,10 +22,10 @@ static std::optional<matjson::Value> RequestCache;
 static constinit RequestTimestamp LastTimeRequestCacheSavedToFile = -1;
 static RequestCacheType CommentRoleCache;
 static RequestCacheType LevelRatingCache;
- 
+
 /// Avoid flooding logs with these messages.
 // TODO: Make an $execute style helper for things like this?
-static inline GEODE_INLINE void logBaseURLOnce(std::string_view ret) {
+static RL_ALWAYS_INLINE void logBaseURLOnce(std::string_view ret) {
     static bool notPrinted = true;
     if (notPrinted) [[unlikely]] {
         log::debug("Base URL from game executable: '{}'", ret);

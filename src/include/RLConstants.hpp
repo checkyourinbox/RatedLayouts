@@ -1,7 +1,7 @@
 #pragma once
 #include <Geode/Geode.hpp>
 #include <Geode/binding/GJAccountManager.hpp>
-#include <Geode/utils/base64.hpp>
+//#include <Geode/utils/base64.hpp>
 
 using namespace geode::prelude;
 
@@ -12,7 +12,7 @@ namespace rl {
     constexpr int ARCTICWOOF_ACCOUNT_ID = 7689052;
 
     // Base URL for all Rated Layouts API endpoints.
-    constexpr std::string_view BASE_API_URL = "https://gdrate.arcticwoof.xyz";
+    inline constexpr std::string_view BASE_API_URL = "https://gdrate.arcticwoof.xyz";
 
     inline bool isUserHasPerms() {
         // check if user has any roles by checking saved values
