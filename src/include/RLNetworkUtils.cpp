@@ -22,6 +22,16 @@ static std::optional<matjson::Value> RequestCache;
 static constinit RequestTimestamp LastTimeRequestCacheSavedToFile = -1;
 static RequestCacheType CommentRoleCache;
 static RequestCacheType LevelRatingCache;
+ 
+/// Avoid flooding logs with these messages.
+// TODO: Make an $execute style helper for things like this?
+static inline GEODE_INLINE void logBaseURLOnce(std::string_view ret) {
+    static bool notPrinted = true;
+    if (notPrinted) [[unlikely]] {
+        log::debug("Base URL from game executable: '{}'", ret);
+        notPrinted = true;
+    }
+}
 
 // every gd mod has a little bit of betterinfo in it :) - cvolton
 std::string_view rl::getBaseURL() {
@@ -56,7 +66,7 @@ std::string_view rl::getBaseURL() {
     if (ret.size() > 34)
         ret = ret.substr(0, 34);
 
-    log::debug("Base URL from game executable: '{}'", ret);
+    logBaseURLOnce(ret);
     return ret;
 }
 
@@ -216,6 +226,7 @@ static bool doesRequestCacheNeedSave() {
 static bool saveRequestCacheRootWithTimeout() {
     if (!doesRequestCacheNeedSave())
         return true;
+    // TODO: Make this async?
     if (rl::saveRequestCacheRoot()) {
         LastTimeRequestCacheSavedToFile = getCurrentTimestamp();
         return true;
