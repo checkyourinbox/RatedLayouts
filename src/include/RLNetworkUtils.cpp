@@ -1,4 +1,5 @@
 #include "RLNetworkUtils.hpp"
+#include "utils/NoHashHasher.hpp"
 #include <Geode/Geode.hpp>
 //#include <argon/argon.hpp>
 #include <mutex>
@@ -9,7 +10,8 @@ using namespace geode::prelude;
 using namespace rl;
 
 // TODO: Use sparse mapping?
-using RequestCacheType = std::unordered_map<int, RequestCacheEntry>;
+using IdHasher = NoHashHasher<int>;
+using RequestCacheType = std::unordered_map<int, RequestCacheEntry, IdHasher>;
 
 namespace {
     enum { kRequestCacheTimeout = 30 };
