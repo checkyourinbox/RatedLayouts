@@ -334,185 +334,150 @@ bool RLUserControl::init() {
     optionsMenu->updateLayout();
 
     // fetch profile data to determine initial excluded state
-    if (m_targetAccountId > 0) {
-        matjson::Value jsonBody = matjson::Value::object();
-        jsonBody["argonToken"] =
-            Mod::get()->getSavedValue<std::string>("argon_token");
-        jsonBody["accountId"] = m_targetAccountId;
+    if (m_targetAccountId <= 0)
+        return true;
+    
+    matjson::Value jsonBody = matjson::Value::object();
+    jsonBody["argonToken"] =
+        Mod::get()->getSavedValue<std::string>("argon_token");
+    jsonBody["accountId"] = m_targetAccountId;
 
-        auto postReq = web::WebRequest();
-        postReq.bodyJSON(jsonBody);
-        Ref<RLUserControl> self = this;
-        m_profileTask.spawn(
-            postReq.post(std::string(rl::BASE_API_URL) + "/profile"),
-            [self](web::WebResponse response) {
-                if (!self)
-                    return;  // popup destroyed or otherwise invalid
+    auto postReq = web::WebRequest();
+    postReq.bodyJSON(jsonBody);
+    Ref<RLUserControl> self = this;
+    m_profileTask.spawn(
+        postReq.post(std::string(rl::BASE_API_URL) + "/profile"),
+        [self](web::WebResponse response) {
+            if (!self) return;
+            if (!response.ok()) {
+                log::warn("Profile fetch returned non-ok status: {}",
+                    response.code());
+                return;
+            }
+            auto jsonRes = response.json();
+            if (!jsonRes) {
+                log::warn("Failed to parse JSON response for profile");
+                return;
+            }
 
-                // default values if any part of the fetch fails
-                bool isExcluded = false;
-                bool isBlacklisted = false;
-                bool isBanned = false;
-                bool isLBMod = false;
-                bool isClassicMod = false;
-                bool isClassicAdmin = false;
-                bool isLbAdmin = false;
-                bool isPlatMod = false;
-                bool isPlatAdmin = false;
-                bool isWhitelisted = false;
+            auto json = std::move(jsonRes).unwrap();
+            auto readJsonBool = [&json] (std::string_view name) -> bool {
+                return json[name].asBool().unwrapOrDefault();
+            };
 
-                if (!response.ok()) {
-                    log::warn("Profile fetch returned non-ok status: {}",
-                        response.code());
-                    return;
-                }
-                auto jsonRes = response.json();
-                if (!jsonRes) {
-                    log::warn("Failed to parse JSON response for profile");
-                    return;
-                }
+            bool isExcluded     = readJsonBool("excluded");
+            bool isBlacklisted  = readJsonBool("blacklisted");
+            bool isBanned       = readJsonBool("banned");
+            bool isLBMod        = readJsonBool("isLeaderboardMod");
+            bool isClassicMod   = readJsonBool("isClassicMod");
+            bool isClassicAdmin = readJsonBool("isClassicAdmin");
+            bool isLbAdmin      = readJsonBool("isLeaderboardAdmin");
+            bool isPlatMod      = readJsonBool("isPlatMod");
+            bool isPlatAdmin    = readJsonBool("isPlatAdmin");
+            bool isWhitelisted  = readJsonBool("whitelisted");
 
-                auto json = jsonRes.unwrap();
+            // Apply option states
+            self->m_isInitializing = true;
+            self->setOptionState("exclude", isExcluded, true);
+            self->setOptionState("blacklisted", isBlacklisted, true);
+            self->setOptionState("bannedCreator", isBanned, true);
+            self->setOptionState("whitelist", isWhitelisted, true);
 
-                isExcluded = json["excluded"].asBool().unwrapOrDefault();
-                isBlacklisted = json["blacklisted"].asBool().unwrapOrDefault();
-                isBanned = json["banned"].asBool().unwrapOrDefault();
-                isLBMod = json["isLeaderboardMod"].asBool().unwrapOrDefault();
-                isClassicMod = json["isClassicMod"].asBool().unwrapOrDefault();
-                isClassicAdmin =
-                    json["isClassicAdmin"].asBool().unwrapOrDefault();
-                isLbAdmin =
-                    json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
-                isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
-                isPlatAdmin = json["isPlatAdmin"].asBool().unwrapOrDefault();
-                isWhitelisted = json["whitelisted"].asBool().unwrapOrDefault();
+            // ensure exclude is disabled while whitelist is set
+            if (isWhitelisted) {
+                self->setOptionEnabled("exclude", false);
+            }
 
-                // Apply option states
-                self->m_isInitializing = true;
-                self->setOptionState("exclude", isExcluded, true);
-                self->setOptionState("blacklisted", isBlacklisted, true);
-                self->setOptionState("bannedCreator", isBanned, true);
-                self->setOptionState("whitelist", isWhitelisted, true);
+            // show and enable option buttons now that profile loading has
+            // finished (successfully or not)
+            if (self->m_spinner)
+                self->m_spinner->setVisible(false);
 
-                // ensure exclude is disabled while whitelist is set
-                if (isWhitelisted) {
-                    self->setOptionEnabled("exclude", false);
-                }
+            self->updateOptionVisibility();
 
-                // show and enable option buttons now that profile loading has
-                // finished (successfully or not)
-                if (self->m_spinner)
-                    self->m_spinner->setVisible(false);
+            self->m_targetIsLeaderboardMod = isLBMod;
+            self->m_targetIsLeaderboardAdmin = isLbAdmin;
+            self->m_targetIsClassicMod = isClassicMod;
+            self->m_targetIsClassicAdmin = isClassicAdmin;
+            self->m_targetIsPlatMod = isPlatMod;
+            self->m_targetIsPlatAdmin = isPlatAdmin;
 
-                self->updateOptionVisibility();
-
-                self->m_targetIsLeaderboardMod = isLBMod;
-                self->m_targetIsLeaderboardAdmin = isLbAdmin;
-                self->m_targetIsClassicMod = isClassicMod;
-                self->m_targetIsClassicAdmin = isClassicAdmin;
-                self->m_targetIsPlatMod = isPlatMod;
-                self->m_targetIsPlatAdmin = isPlatAdmin;
-
-                // Update wipe button appearance and enabled state based on exclude
-                // state
-                auto excludeOpt = self->getOptionByKey("exclude");
-                if (self->m_wipeButton) {
-                    if (!excludeOpt || !excludeOpt->persisted) {
-                        self->m_wipeButton->setNormalImage(ButtonSprite::create(
-                            "Wipe User Data", buttonWidth, true, "goldFont.fnt", "GJ_button_04.png", 30.f, 1.f));
-                        self->m_wipeButton->setEnabled(false);
-                    } else {
-                        // restore normal active appearance
-                        self->m_wipeButton->setNormalImage(ButtonSprite::create(
-                            "Wipe User Data", buttonWidth, true, "goldFont.fnt", "GJ_button_01.png", 30.f, 1.f));
-                        self->m_wipeButton->setEnabled(true);
-                    }
-                }
-
-                if (self->m_wipeButton) {
-                    self->m_wipeButton->setVisible(rl::isUserOwner() || rl::isUserDeveloper());
-                }
-                if (!(rl::isUserLeaderboardAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promoteLeaderboardModButton) {
-                    self->m_promoteLeaderboardModButton->removeFromParentAndCleanup(true);
-                    self->m_promoteLeaderboardModButton = nullptr;
-                }
-                if (!(rl::isUserClassicAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promoteClassicModButton) {
-                    self->m_promoteClassicModButton->removeFromParentAndCleanup(true);
-                    self->m_promoteClassicModButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promoteClassicAdminButton) {
-                    self->m_promoteClassicAdminButton->removeFromParentAndCleanup(true);
-                    self->m_promoteClassicAdminButton = nullptr;
-                }
-                if (!(rl::isUserPlatformerAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promotePlatModButton) {
-                    self->m_promotePlatModButton->removeFromParentAndCleanup(true);
-                    self->m_promotePlatModButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promotePlatAdminButton) {
-                    self->m_promotePlatAdminButton->removeFromParentAndCleanup(true);
-                    self->m_promotePlatAdminButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_promoteLeaderboardAdminButton) {
-                    self->m_promoteLeaderboardAdminButton->removeFromParentAndCleanup(true);
-                    self->m_promoteLeaderboardAdminButton = nullptr;
-                }
-                if (!(rl::isUserClassicAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demoteClassicModButton) {
-                    self->m_demoteClassicModButton->removeFromParentAndCleanup(true);
-                    self->m_demoteClassicModButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demoteClassicAdminButton) {
-                    self->m_demoteClassicAdminButton->removeFromParentAndCleanup(true);
-                    self->m_demoteClassicAdminButton = nullptr;
-                }
-                if (!(rl::isUserPlatformerAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demotePlatModButton) {
-                    self->m_demotePlatModButton->removeFromParentAndCleanup(true);
-                    self->m_demotePlatModButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demotePlatAdminButton) {
-                    self->m_demotePlatAdminButton->removeFromParentAndCleanup(true);
-                    self->m_demotePlatAdminButton = nullptr;
-                }
-                if (!(rl::isUserLeaderboardAdmin() || rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demoteLBModButton) {
-                    self->m_demoteLBModButton->removeFromParentAndCleanup(true);
-                    self->m_demoteLBModButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_demoteLBAdminButton) {
-                    self->m_demoteLBAdminButton->removeFromParentAndCleanup(true);
-                    self->m_demoteLBAdminButton = nullptr;
-                }
-                if (!(rl::isUserOwner() || rl::isUserDeveloper()) && self->m_wipeButton) {
-                    self->m_wipeButton->removeFromParentAndCleanup(true);
-                    self->m_wipeButton = nullptr;
+            // Update wipe button appearance and enabled state based on exclude
+            // state
+            auto excludeOpt = self->getOptionByKey("exclude");
+            if (self->m_wipeButton) {
+                if (!excludeOpt || !excludeOpt->persisted) {
+                    self->m_wipeButton->setNormalImage(ButtonSprite::create(
+                        "Wipe User Data", buttonWidth, true, "goldFont.fnt", "GJ_button_04.png", 30.f, 1.f));
+                    self->m_wipeButton->setEnabled(false);
                 } else {
-                    auto enableIf = [&](CCMenuItemSpriteExtra* btn,
-                                        const std::string& text,
-                                        bool cond) {
-                        if (btn) {
-                            setPromoBtnState(btn, text, cond);
-                        }
-                    };
-                    enableIf(self->m_promoteLeaderboardModButton, "Promote to LB Mod", !self->m_targetIsLeaderboardMod);
-                    enableIf(self->m_promoteClassicModButton, "Promote to Classic Mod", !self->m_targetIsClassicMod);
-                    enableIf(self->m_promoteClassicAdminButton,
-                        "Promote to Classic Admin",
-                        !self->m_targetIsClassicAdmin);
-                    enableIf(self->m_promotePlatModButton, "Promote to Plat Mod", !self->m_targetIsPlatMod);
-                    enableIf(self->m_promotePlatAdminButton, "Promote to Plat Admin", !self->m_targetIsPlatAdmin);
-                    enableIf(self->m_promoteLeaderboardAdminButton, "Promote to LB Admin", !self->m_targetIsLeaderboardAdmin);
-
-                    enableIf(self->m_demoteClassicModButton, "Demote Classic Mod", self->m_targetIsClassicMod);
-                    enableIf(self->m_demoteClassicAdminButton, "Demote Classic Admin", self->m_targetIsClassicAdmin);
-                    enableIf(self->m_demotePlatModButton, "Demote Platformer Mod", self->m_targetIsPlatMod);
-                    enableIf(self->m_demotePlatAdminButton, "Demote Platformer Admin", self->m_targetIsPlatAdmin);
-                    enableIf(self->m_demoteLBModButton, "Demote LB Mod", self->m_targetIsLeaderboardMod);
-                    enableIf(self->m_demoteLBAdminButton, "Demote LB Admin", self->m_targetIsLeaderboardAdmin);
+                    // restore normal active appearance
+                    self->m_wipeButton->setNormalImage(ButtonSprite::create(
+                        "Wipe User Data", buttonWidth, true, "goldFont.fnt", "GJ_button_01.png", 30.f, 1.f));
+                    self->m_wipeButton->setEnabled(true);
                 }
+                self->m_wipeButton->setVisible(rl::isUserOwner() || rl::isUserDeveloper());
+            }
 
-                if (self->m_optionsMenu)
-                    self->m_optionsMenu->updateLayout();
-                self->m_isInitializing = false;
-            });
-    }
+            auto cleanupButton = [self] (CCMenuItemSpriteExtra*& button) {
+                if (button) {
+                    button->removeFromParentAndCleanup(true);
+                    button = nullptr;
+                }
+            };
+
+            const bool isDevOwner = rl::isUserOwner() || rl::isUserDeveloper();
+
+            if (!rl::isUserLeaderboardAdmin() && !isDevOwner) {
+                cleanupButton(self->m_promoteLeaderboardModButton);
+                cleanupButton(self->m_demoteLBModButton);
+            }
+
+            if (!rl::isUserClassicAdmin() && !isDevOwner) {
+                cleanupButton(self->m_promoteClassicModButton);
+                cleanupButton(self->m_demoteClassicModButton);
+            }
+
+            if (!rl::isUserPlatformerAdmin() && !isDevOwner) {
+                cleanupButton(self->m_promotePlatModButton);
+                cleanupButton(self->m_demotePlatModButton);
+            }
+
+            if (!isDevOwner) {
+                cleanupButton(self->m_promoteClassicAdminButton);
+                cleanupButton(self->m_promotePlatAdminButton);
+                cleanupButton(self->m_promoteLeaderboardAdminButton);
+                cleanupButton(self->m_demoteClassicAdminButton);
+                cleanupButton(self->m_demotePlatAdminButton);
+                cleanupButton(self->m_demoteLBAdminButton);
+                cleanupButton(self->m_wipeButton);
+            } else {
+                auto enableIf = [&](CCMenuItemSpriteExtra* btn,
+                                    const std::string& text,
+                                    bool cond) {
+                    if (btn) {
+                        setPromoBtnState(btn, text, cond);
+                    }
+                };
+                enableIf(self->m_promoteLeaderboardModButton, "Promote to LB Mod", !self->m_targetIsLeaderboardMod);
+                enableIf(self->m_promoteClassicModButton, "Promote to Classic Mod", !self->m_targetIsClassicMod);
+                enableIf(self->m_promoteClassicAdminButton, "Promote to Classic Admin", !self->m_targetIsClassicAdmin);
+                enableIf(self->m_promotePlatModButton, "Promote to Plat Mod", !self->m_targetIsPlatMod);
+                enableIf(self->m_promotePlatAdminButton, "Promote to Plat Admin", !self->m_targetIsPlatAdmin);
+                enableIf(self->m_promoteLeaderboardAdminButton, "Promote to LB Admin", !self->m_targetIsLeaderboardAdmin);
+
+                enableIf(self->m_demoteClassicModButton, "Demote Classic Mod", self->m_targetIsClassicMod);
+                enableIf(self->m_demoteClassicAdminButton, "Demote Classic Admin", self->m_targetIsClassicAdmin);
+                enableIf(self->m_demotePlatModButton, "Demote Platformer Mod", self->m_targetIsPlatMod);
+                enableIf(self->m_demotePlatAdminButton, "Demote Platformer Admin", self->m_targetIsPlatAdmin);
+                enableIf(self->m_demoteLBModButton, "Demote LB Mod", self->m_targetIsLeaderboardMod);
+                enableIf(self->m_demoteLBAdminButton, "Demote LB Admin", self->m_targetIsLeaderboardAdmin);
+            }
+
+            if (self->m_optionsMenu)
+                self->m_optionsMenu->updateLayout();
+            self->m_isInitializing = false;
+        });
 
     return true;
 }
@@ -540,81 +505,82 @@ void RLUserControl::onWipeAction(CCObject* sender) {
             "<cg>{}</c>?\n<cy>This action is irreversible.</c>",
             m_targetAccountId);
     geode::createQuickPopup(
-        title.c_str(), body.c_str(), "No", "Wipe", [this](auto, bool yes) {
-            if (!yes)
+        title.c_str(), body, "No", "Wipe", 
+    [this](auto, bool yes) {
+        if (!yes)
+            return;
+
+        auto popup = UploadActionPopup::create(nullptr, "Wiping user data...");
+        popup->show();
+        Ref<UploadActionPopup> popupRef = popup;
+
+        // Get token
+        auto token = Mod::get()->getSavedValue<std::string>("argon_token");
+        if (token.empty()) {
+            popupRef->showFailMessage("Authentication token not found");
+            return;
+        }
+
+        // disable UI and show spinner
+        this->setAllOptionsEnabled(false);
+        if (this->m_wipeButton)
+            this->m_wipeButton->setEnabled(false);
+        if (this->m_spinner)
+            this->m_spinner->setVisible(true);
+
+        matjson::Value jsonBody = matjson::Value::object();
+        jsonBody["accountId"] = GJAccountManager::get()->m_accountID;
+        jsonBody["argonToken"] = token;
+        jsonBody["targetAccountId"] = this->m_targetAccountId;
+
+        log::info("Sending deleteUser request: {}", jsonBody.dump());
+
+        auto postReq = web::WebRequest();
+        postReq.bodyJSON(jsonBody);
+        Ref<RLUserControl> self = this;
+        self->m_deleteUserTask.spawn(
+            postReq.post(std::string(rl::BASE_API_URL) + "/deleteUser"),
+        [self, popupRef](web::WebResponse response) {
+            if (!self || !popupRef)
                 return;
 
-            auto popup = UploadActionPopup::create(nullptr, "Wiping user data...");
-            popup->show();
-            Ref<UploadActionPopup> popupRef = popup;
+            // re-enable UI
+            self->setAllOptionsEnabled(true);
+            if (self->m_wipeButton)
+                self->m_wipeButton->setEnabled(true);
 
-            // Get token
-            auto token = Mod::get()->getSavedValue<std::string>("argon_token");
-            if (token.empty()) {
-                popupRef->showFailMessage("Authentication token not found");
+            if (!response.ok()) {
+                log::warn("deleteUser returned non-ok status: {}",
+                    response.code());
+                popupRef->showFailMessage(
+                    rl::getResponseFailMessage(response, "Failed to delete user"));
+                if (self->m_spinner)
+                    self->m_spinner->setVisible(false);
                 return;
             }
 
-            // disable UI and show spinner
-            this->setAllOptionsEnabled(false);
-            if (this->m_wipeButton)
-                this->m_wipeButton->setEnabled(false);
-            if (this->m_spinner)
-                this->m_spinner->setVisible(true);
+            auto jsonRes = response.json();
+            if (!jsonRes) {
+                log::warn("Failed to parse deleteUser response");
+                popupRef->showFailMessage("Invalid server response");
+                if (self->m_spinner)
+                    self->m_spinner->setVisible(false);
+                return;
+            }
 
-            matjson::Value jsonBody = matjson::Value::object();
-            jsonBody["accountId"] = GJAccountManager::get()->m_accountID;
-            jsonBody["argonToken"] = token;
-            jsonBody["targetAccountId"] = this->m_targetAccountId;
-
-            log::info("Sending deleteUser request: {}", jsonBody.dump());
-
-            auto postReq = web::WebRequest();
-            postReq.bodyJSON(jsonBody);
-            Ref<RLUserControl> self = this;
-            self->m_deleteUserTask.spawn(
-                postReq.post(std::string(rl::BASE_API_URL) + "/deleteUser"),
-                [self, popupRef](web::WebResponse response) {
-                    if (!self || !popupRef)
-                        return;
-
-                    // re-enable UI
-                    self->setAllOptionsEnabled(true);
-                    if (self->m_wipeButton)
-                        self->m_wipeButton->setEnabled(true);
-
-                    if (!response.ok()) {
-                        log::warn("deleteUser returned non-ok status: {}",
-                            response.code());
-                        popupRef->showFailMessage(
-                            rl::getResponseFailMessage(response, "Failed to delete user"));
-                        if (self->m_spinner)
-                            self->m_spinner->setVisible(false);
-                        return;
-                    }
-
-                    auto jsonRes = response.json();
-                    if (!jsonRes) {
-                        log::warn("Failed to parse deleteUser response");
-                        popupRef->showFailMessage("Invalid server response");
-                        if (self->m_spinner)
-                            self->m_spinner->setVisible(false);
-                        return;
-                    }
-
-                    auto json = jsonRes.unwrap();
-                    bool success = json["success"].asBool().unwrapOrDefault();
-                    if (success) {
-                        if (self->m_spinner)
-                            self->m_spinner->setVisible(false);
-                        popupRef->showSuccessMessage("User data wiped!");
-                    } else {
-                        popupRef->showFailMessage("Failed to delete user");
-                        if (self->m_spinner)
-                            self->m_spinner->setVisible(false);
-                    }
-                });
+            auto json = jsonRes.unwrap();
+            bool success = json["success"].asBool().unwrapOrDefault();
+            if (success) {
+                if (self->m_spinner)
+                    self->m_spinner->setVisible(false);
+                popupRef->showSuccessMessage("User data wiped!");
+            } else {
+                popupRef->showFailMessage("Failed to delete user");
+                if (self->m_spinner)
+                    self->m_spinner->setVisible(false);
+            }
         });
+    });
 }
 
 void RLUserControl::onPromoteAction(CCObject* sender) {
@@ -707,10 +673,9 @@ void RLUserControl::onPromoteAction(CCObject* sender) {
 
     createQuickPopup(
         titleText.c_str(),
-        ("Are you sure you want to <cg>" + confirmText + "</c>?").c_str(),
-        "Cancel",
-        "Confirm",
-        [this, setLBMod, setLBAdmin, setClassicMod, setClassicAdmin, setPlatMod, setPlatAdmin, demoteClassicMod, demoteClassicAdmin, demotePlatMod, demotePlatAdmin, demoteLBMod, demoteLBAdmin, targetHasLB, targetHasClassic, targetHasPlat, actionText](auto, bool yes) {
+        ("Are you sure you want to <cg>" + confirmText + "</c>?"),
+        "Cancel", "Confirm",
+        [=, this](auto, bool yes) {
             if (!yes)
                 return;
 
@@ -727,22 +692,12 @@ void RLUserControl::onPromoteAction(CCObject* sender) {
 
             // disable UI and show spinner
             this->setAllOptionsEnabled(false);
-            setPromoBtnState(this->m_promoteLeaderboardModButton,
-                "Promote to LB Mod",
-                false);
-            setPromoBtnState(this->m_promoteLeaderboardAdminButton,
-                "Promote to LB Admin",
-                false);
-            setPromoBtnState(this->m_promoteClassicModButton,
-                "Promote to Classic Mod",
-                false);
-            setPromoBtnState(this->m_promoteClassicAdminButton,
-                "Promote to Classic Admin",
-                false);
+            setPromoBtnState(this->m_promoteLeaderboardModButton, "Promote to LB Mod", false);
+            setPromoBtnState(this->m_promoteLeaderboardAdminButton, "Promote to LB Admin", false);
+            setPromoBtnState(this->m_promoteClassicModButton, "Promote to Classic Mod", false);
+            setPromoBtnState(this->m_promoteClassicAdminButton, "Promote to Classic Admin", false);
             setPromoBtnState(this->m_promotePlatModButton, "Promote to Plat Mod", false);
-            setPromoBtnState(this->m_promotePlatAdminButton,
-                "Promote to Plat Admin",
-                false);
+            setPromoBtnState(this->m_promotePlatAdminButton, "Promote to Plat Admin", false);
             setPromoBtnState(this->m_demoteClassicModButton, "Demote Classic Mod", false);
             setPromoBtnState(this->m_demoteClassicAdminButton, "Demote Classic Admin", false);
             setPromoBtnState(this->m_demotePlatModButton, "Demote Platformer Mod", false);
@@ -790,7 +745,7 @@ void RLUserControl::onPromoteAction(CCObject* sender) {
             Ref<RLUserControl> self = this;
             self->m_promoteUserTask.spawn(
                 postReq.post(std::string(rl::BASE_API_URL) + "/promoteUser"),
-                [self, popupRef, setLBMod, setLBAdmin, setClassicMod, setClassicAdmin, setPlatMod, setPlatAdmin, demoteClassicMod, demoteClassicAdmin, demotePlatMod, demotePlatAdmin, demoteLBMod, demoteLBAdmin, targetHasClassic, targetHasPlat, targetHasLB](web::WebResponse response) {
+                [=](web::WebResponse response) {
                     if (!self || !popupRef)
                         return;
 

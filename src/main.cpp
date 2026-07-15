@@ -27,6 +27,7 @@ $on_mod(Loaded) {
         Mod::get()->setSettingValue<bool>("disableRLReq", true);
     }
 };
+
 class $modify(RLSupportLayer, SupportLayer) {
     struct Fields {
         async::TaskHolder<web::WebResponse> m_getAccessTask;
@@ -40,22 +41,23 @@ class $modify(RLSupportLayer, SupportLayer) {
 
     void customSetup() {
         if (!Mod::get()->getSettingValue<bool>("disableRLReq")) {
-            m_fields->m_argonMenu = CCMenu::create();
-            m_fields->m_argonMenu->setPosition({0, 0});
-            m_listLayer->addChild(m_fields->m_argonMenu, 10);
+            CCMenu* argonMenu = CCMenu::create();
+            m_fields->m_argonMenu = argonMenu;
+            argonMenu->setPosition({0, 0});
+            m_listLayer->addChild(argonMenu, 10);
             // show the argon button for user with a role
             auto keyBtnSpr = ButtonSprite::create("Key", 25, true, "bigFont.fnt", "GJ_button_04.png", 25.f, 1.f);
             auto keyBtn = CCMenuItemSpriteExtra::create(
                 keyBtnSpr, this, menu_selector(RLSupportLayer::onImportKey));
             keyBtn->setPosition({328, 55});
-            m_fields->m_argonMenu->addChild(keyBtn);
+            argonMenu->addChild(keyBtn);
 
             if (rl::isUserHasPerms() || rl::isUserOwner() || rl::isUserDeveloper()) {
                 auto argonBtnSpr = ButtonSprite::create("Argon", 25, true, "bigFont.fnt", "GJ_button_04.png", 25.f, 1.f);
                 auto argonBtn = CCMenuItemSpriteExtra::create(
                     argonBtnSpr, this, menu_selector(RLSupportLayer::onGetArgon));
                 argonBtn->setPosition({328, 85});
-                m_fields->m_argonMenu->addChild(argonBtn);
+                argonMenu->addChild(argonBtn);
             }
         }
 
@@ -72,12 +74,12 @@ class $modify(RLSupportLayer, SupportLayer) {
             [this, popupRef](Result<std::string> res) {
                 if (!popupRef) return;
                 if (res.isOk()) {
-                    auto token = std::move(res).unwrap();
+                    std::string token = std::move(res).unwrap();
                     utils::clipboard::write(token);
                     popupRef->showSuccessMessage(
                         "Token copied to clipboard.");
                 } else {
-                    auto err = res.unwrapErr();
+                    std::string err = res.unwrapErr();
                     log::warn("Auth failed: {}", err);
                     popupRef->showFailMessage(err);
                     argon::clearToken();
@@ -92,60 +94,48 @@ class $modify(RLSupportLayer, SupportLayer) {
         Ref<RLSupportLayer> self = this;
         Ref<UploadActionPopup> popupRef = m_uploadPopup;
         async::spawn([self, popupRef]() -> arc::Future<void> {
-            if (!self || !popupRef) {
-                co_return;
-            }
+            if (!self || !popupRef) co_return;
 
             geode::utils::file::FilePickOptions options;
             options.filters.push_back({"Private Key", {"*.ppk", "*.pem"}});
-
             auto result = co_await geode::utils::file::pick(
-                geode::utils::file::PickMode::OpenFile,
-                options);
+                geode::utils::file::PickMode::OpenFile, options);
 
-            if (!self)
-                co_return;
-            if (!result) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
+            if (!self) co_return;
+
+            auto failMessage = [&] (gd::string message) {
+                Loader::get()->queueInMainThread([self, popupRef, &message]() {
                     if (self && popupRef) {
-                        popupRef->showFailMessage("Failed to open file picker");
+                        popupRef->showFailMessage(std::move(message));
                     }
                 });
+            };
+
+            if (!result) {
+                failMessage("Failed to open file picker");
                 co_return;
             }
 
             auto maybePath = result.unwrap();
             if (!maybePath) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage("No file selected");
-                    }
-                });
+                failMessage("No file selected");
                 co_return;
             }
 
             auto path = *maybePath;
             auto textRes = utils::file::readString(utils::string::pathToString(path));
             if (!textRes) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage("Failed to read key file");
-                    }
-                });
+                failMessage("Failed to read key file");
                 co_return;
             }
 
             auto key = textRes.unwrap();
             if (key.empty()) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage("Selected key file is empty");
-                    }
-                });
+                failMessage("Selected key file is empty");
                 co_return;
             }
 
-            std::vector<uint8_t> keyBytes(key.begin(), key.end());
+            geode::ByteVector keyBytes(key.begin(), key.end());
             web::MultipartForm form;
             form.file("privateKey", keyBytes, path.filename().string(), "application/octet-stream");
 
@@ -157,50 +147,31 @@ class $modify(RLSupportLayer, SupportLayer) {
                 co_return;
 
             if (!response.ok()) {
-                std::string errorMsg = rl::getResponseFailMessage(response, "Failed to upload private key.");
-                Loader::get()->queueInMainThread([self, popupRef, errorMsg]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage(errorMsg);
-                    }
-                });
+                std::string errorMsg = rl::getResponseFailMessage(response, "Failed to upload private key");
+                failMessage(std::move(errorMsg));
                 co_return;
             }
 
             auto jsonRes = response.json();
-            if (!jsonRes) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage("Invalid server response.");
-                    }
-                });
+            if (jsonRes.isErr()) {
+                if (auto optExtraCtx = jsonRes.err())
+                    failMessage("Invalid server response: " + *optExtraCtx);
+                else
+                    failMessage("Invalid server response");
                 co_return;
             }
 
-            auto json = jsonRes.unwrap();
-            bool success = !json["masterKey"].asString().unwrapOr("").empty();
-            if (!success) {
-                std::string message = json["message"].asString().unwrapOr("Private key rejected");
-                Loader::get()->queueInMainThread([self, popupRef, message]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage(message);
-                    }
-                });
-                co_return;
-            }
-
+            auto json = std::move(jsonRes).unwrap();
             std::string returnedKey = json["masterKey"].asString().unwrapOr("");
             if (returnedKey.empty()) {
-                Loader::get()->queueInMainThread([self, popupRef]() {
-                    if (self && popupRef) {
-                        popupRef->showFailMessage("Missing master key.");
-                    }
-                });
+                std::string errorMsg = json["message"].asString()
+                                           .unwrapOr("Private key rejected or missing master key");
+                failMessage(std::move(errorMsg));
                 co_return;
             }
 
             Loader::get()->queueInMainThread([self, popupRef, returnedKey = std::move(returnedKey)]() {
-                if (!self)
-                    return;
+                if (!self) return;
                 Mod::get()->setSavedValue("masterKey", returnedKey);
                 if (popupRef) {
                     popupRef->showSuccessMessage("Private key accepted.");
@@ -211,6 +182,7 @@ class $modify(RLSupportLayer, SupportLayer) {
         });
     }
 
+    // TODO: Handle cases if someone DOES get mod fsr?
     void onRequestAccess(CCObject* sender) {  // i assume that no one will ever get gd mod xddd
         if (Mod::get()->getSettingValue<bool>("disableRLReq")) {
             SupportLayer::onRequestAccess(sender);
@@ -228,132 +200,132 @@ class $modify(RLSupportLayer, SupportLayer) {
         m_fields->m_authTask.spawn(
             argon::startAuth(std::move(accountData)),
             [self, this, popupRef](Result<std::string> res) {
-                if (!self || !popupRef)
-                    return;
+                if (!self || !popupRef) return;
 
-                if (res.isOk()) {
-                    auto token = std::move(res).unwrap();
-                    log::info("token obtained: {}", token);
-                    Mod::get()->setSavedValue("argon_token", token);
-
-                    // json body
-                    matjson::Value jsonBody = matjson::Value::object();
-                    jsonBody["argonToken"] = token;
-                    jsonBody["accountId"] = GJAccountManager::get()->m_accountID;
-                    auto masterKey = Mod::get()->getSavedValue<std::string>("masterKey");
-                    if (!masterKey.empty()) {
-                        jsonBody["masterKey"] = masterKey;
-                    }
-
-                    // verify the user's role
-                    auto postReq = web::WebRequest();
-                    postReq.bodyJSON(jsonBody);
-
-                    m_fields->m_getAccessTask.spawn(
-                        postReq.post(std::string(rl::BASE_API_URL) + "/getAccess"),
-                        [self, this, popupRef](web::WebResponse response) {
-                            if (!self || !popupRef)
-                                return;
-                            log::info("Received response from server");
-                            if (!response.ok()) {
-                                log::warn("Server returned non-ok status: {}",
-                                    response.code());
-                                popupRef->showFailMessage(rl::getResponseFailMessage(
-                                    response, "Failed! Try again later."));
-                                return;
-                            }
-
-                            auto jsonRes = response.json();
-                            if (!jsonRes) {
-                                log::warn("Failed to parse JSON response");
-                                popupRef->showFailMessage(
-                                    "Failed to parse JSON response");
-                                return;
-                            }
-
-                            auto json = jsonRes.unwrap();
-                            bool isClassicMod =
-                                json["isClassicMod"].asBool().unwrapOrDefault();
-                            bool isClassicAdmin =
-                                json["isClassicAdmin"].asBool().unwrapOrDefault();
-                            bool isLeaderboardMod =
-                                json["isLeaderboardMod"].asBool().unwrapOrDefault();
-                            bool isLeaderboardAdmin =
-                                json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
-                            bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
-                            bool isPlatAdmin =
-                                json["isPlatAdmin"].asBool().unwrapOrDefault();
-                            bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
-                            bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
-
-                            Mod::get()->setSavedValue<bool>("isClassicMod", isClassicMod);
-                            Mod::get()->setSavedValue<bool>("isClassicAdmin",
-                                isClassicAdmin);
-                            Mod::get()->setSavedValue<bool>("isLeaderboardMod",
-                                isLeaderboardMod);
-                            Mod::get()->setSavedValue<bool>("isLeaderboardAdmin",
-                                isLeaderboardAdmin);
-                            Mod::get()->setSavedValue<bool>("isPlatMod", isPlatMod);
-                            Mod::get()->setSavedValue<bool>("isPlatAdmin", isPlatAdmin);
-                            Mod::get()->setSavedValue<bool>("isOwner", isOwner);
-                            Mod::get()->setSavedValue<bool>("isDeveloper", isDeveloper);
-
-                            int roleCount = 0;
-                            roleCount += isClassicMod ? 1 : 0;
-                            roleCount += isClassicAdmin ? 1 : 0;
-                            roleCount += isLeaderboardMod ? 1 : 0;
-                            roleCount += isLeaderboardAdmin ? 1 : 0;
-                            roleCount += isPlatMod ? 1 : 0;
-                            roleCount += isPlatAdmin ? 1 : 0;
-                            roleCount += isDeveloper ? 1 : 0;
-                            roleCount += isOwner ? 1 : 0;
-
-                            if (roleCount > 1) {
-                                log::info("Granted Multiple roles");
-                                popupRef->showSuccessMessage(
-                                    "Granted Layout roles.");
-                            } else if (isClassicMod) {
-                                log::info("Granted Layout Mod role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Classic Layout Mod.");
-                            } else if (isClassicAdmin) {
-                                log::info("Granted Layout Admin role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Classic Layout Admin.");
-                            } else if (isLeaderboardMod) {
-                                log::info("Granted Leaderboard Layout Mod role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Leaderboard Layout Mod.");
-                            } else if (isLeaderboardAdmin) {
-                                log::info("Granted Leaderboard Layout Admin role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Leaderboard Layout Admin.");
-                            } else if (isPlatMod) {
-                                log::info("Granted Platformer Layout Mod role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Platformer Layout Mod.");
-                            } else if (isPlatAdmin) {
-                                log::info("Granted Platformer Admin role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Platformer Layout Admin.");
-                            } else if (isOwner) {
-                                log::info("Granted Owner role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Owner role.");
-                            } else if (isDeveloper) {
-                                log::info("Granted Developer role");
-                                popupRef->showSuccessMessage(
-                                    "Granted Developer role.");
-                            } else {
-                                popupRef->showFailMessage("Failed! Nothing found.");
-                            }
-                        });
-                } else {
+                if (res.isErr()) {
                     auto err = res.unwrapErr();
                     log::warn("Auth failed: {}", err);
                     Notification::create(err, NotificationIcon::Error)->show();
                     argon::clearToken();
+                    return;
                 }
+
+                auto token = std::move(res).unwrap();
+                log::info("token obtained: {}", token);
+                Mod::get()->setSavedValue("argon_token", token);
+
+                // json body
+                matjson::Value jsonBody = matjson::Value::object();
+                jsonBody["argonToken"] = token;
+                jsonBody["accountId"] = GJAccountManager::get()->m_accountID;
+                auto masterKey = Mod::get()->getSavedValue<std::string>("masterKey");
+                if (!masterKey.empty()) {
+                    jsonBody["masterKey"] = masterKey;
+                }
+
+                // verify the user's role
+                auto postReq = web::WebRequest();
+                postReq.bodyJSON(jsonBody);
+
+                m_fields->m_getAccessTask.spawn(
+                    postReq.post(std::string(rl::BASE_API_URL) + "/getAccess"),
+                    [self, this, popupRef](web::WebResponse response) {
+                        if (!self || !popupRef)
+                            return;
+                        log::info("Received response from server");
+                        if (!response.ok()) {
+                            log::warn("Server returned non-ok status: {}",
+                                response.code());
+                            popupRef->showFailMessage(rl::getResponseFailMessage(
+                                response, "Failed! Try again later."));
+                            return;
+                        }
+
+                        auto jsonRes = response.json();
+                        if (!jsonRes) {
+                            log::warn("Failed to parse JSON response");
+                            popupRef->showFailMessage(
+                                "Failed to parse JSON response");
+                            return;
+                        }
+
+                        auto json = jsonRes.unwrap();
+                        bool isClassicMod =
+                            json["isClassicMod"].asBool().unwrapOrDefault();
+                        bool isClassicAdmin =
+                            json["isClassicAdmin"].asBool().unwrapOrDefault();
+                        bool isLeaderboardMod =
+                            json["isLeaderboardMod"].asBool().unwrapOrDefault();
+                        bool isLeaderboardAdmin =
+                            json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
+                        bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
+                        bool isPlatAdmin =
+                            json["isPlatAdmin"].asBool().unwrapOrDefault();
+                        bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
+                        bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
+
+                        Mod::get()->setSavedValue<bool>("isClassicMod", isClassicMod);
+                        Mod::get()->setSavedValue<bool>("isClassicAdmin",
+                            isClassicAdmin);
+                        Mod::get()->setSavedValue<bool>("isLeaderboardMod",
+                            isLeaderboardMod);
+                        Mod::get()->setSavedValue<bool>("isLeaderboardAdmin",
+                            isLeaderboardAdmin);
+                        Mod::get()->setSavedValue<bool>("isPlatMod", isPlatMod);
+                        Mod::get()->setSavedValue<bool>("isPlatAdmin", isPlatAdmin);
+                        Mod::get()->setSavedValue<bool>("isOwner", isOwner);
+                        Mod::get()->setSavedValue<bool>("isDeveloper", isDeveloper);
+
+                        int roleCount = 0;
+                        roleCount += isClassicMod ? 1 : 0;
+                        roleCount += isClassicAdmin ? 1 : 0;
+                        roleCount += isLeaderboardMod ? 1 : 0;
+                        roleCount += isLeaderboardAdmin ? 1 : 0;
+                        roleCount += isPlatMod ? 1 : 0;
+                        roleCount += isPlatAdmin ? 1 : 0;
+                        roleCount += isDeveloper ? 1 : 0;
+                        roleCount += isOwner ? 1 : 0;
+
+                        if (roleCount > 1) {
+                            log::info("Granted Multiple roles");
+                            popupRef->showSuccessMessage(
+                                "Granted Layout roles.");
+                        } else if (isClassicMod) {
+                            log::info("Granted Layout Mod role");
+                            popupRef->showSuccessMessage(
+                                "Granted Classic Layout Mod.");
+                        } else if (isClassicAdmin) {
+                            log::info("Granted Layout Admin role");
+                            popupRef->showSuccessMessage(
+                                "Granted Classic Layout Admin.");
+                        } else if (isLeaderboardMod) {
+                            log::info("Granted Leaderboard Layout Mod role");
+                            popupRef->showSuccessMessage(
+                                "Granted Leaderboard Layout Mod.");
+                        } else if (isLeaderboardAdmin) {
+                            log::info("Granted Leaderboard Layout Admin role");
+                            popupRef->showSuccessMessage(
+                                "Granted Leaderboard Layout Admin.");
+                        } else if (isPlatMod) {
+                            log::info("Granted Platformer Layout Mod role");
+                            popupRef->showSuccessMessage(
+                                "Granted Platformer Layout Mod.");
+                        } else if (isPlatAdmin) {
+                            log::info("Granted Platformer Admin role");
+                            popupRef->showSuccessMessage(
+                                "Granted Platformer Layout Admin.");
+                        } else if (isOwner) {
+                            log::info("Granted Owner role");
+                            popupRef->showSuccessMessage(
+                                "Granted Owner role.");
+                        } else if (isDeveloper) {
+                            log::info("Granted Developer role");
+                            popupRef->showSuccessMessage(
+                                "Granted Developer role.");
+                        } else {
+                            popupRef->showFailMessage("Failed! Nothing found.");
+                        }
+                    });
             });
     }
 };
