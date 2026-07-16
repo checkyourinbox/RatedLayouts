@@ -80,10 +80,14 @@ namespace rl {
         return Mod::get()->getSettingValue<int>("requestCacheMaxItems");
     }
 
+    RL_ALWAYS_INLINE bool isRequestCacheValid(RequestTimestamp timestamp, std::int64_t lifetime) {
+        return (getCurrentTimestamp() - timestamp) < lifetime;
+    }
+
     inline bool isRequestCacheValid(RequestTimestamp timestamp) {
         std::int64_t lifetime = getRequestCacheLifetimeSeconds();
         if (lifetime <= 0) return false;
-        return (getCurrentTimestamp() - timestamp) < lifetime;
+        return isRequestCacheValid(timestamp, lifetime);
     }
 
     struct RequestCacheEntry {
