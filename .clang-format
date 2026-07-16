@@ -1,8 +1,8 @@
 # for our beloved clangd users
 
 BasedOnStyle: Google
-NamespaceIndentation: All
-#NamespaceIndentation: Inner
+#NamespaceIndentation: All
+NamespaceIndentation: Inner
 CommentPragmas: "^"
 FixNamespaceComments: true
 SortIncludes: false
