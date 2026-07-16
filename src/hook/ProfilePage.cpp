@@ -3,14 +3,18 @@
 #include <Geode/binding/GameToolbox.hpp>
 #include <Geode/modify/ProfilePage.hpp>
 #include <Geode/utils/async.hpp>
+#include <arc/future/Future.hpp>
 #include <argon/argon.hpp>
 
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
+#include "utils/RLData.hpp"
 #include "layer/RLLevelBrowserLayer.hpp"
 #include "player/RLDifficultyTotalPopup.hpp"
 #include "player/RLUserControl.hpp"
 #include "player/RLUserLevelControl.hpp"
+
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/loader/Mod.hpp"
 #include "Geode/ui/BasedButtonSprite.hpp"
@@ -19,30 +23,11 @@
 // TODO: Merge implementation between this and CommentCell
 
 using namespace geode::prelude;
+using namespace rl;
 
 class $modify(RLProfilePage, ProfilePage) {
-    struct Fields {
-        int accountId = 0;
-        bool isSupporter = false;
-        bool isBooster = false;
-
-        int m_points = 0;
-        int m_planets = 0;
-        int m_stars = 0;
-        int m_coins = 0;
-        int m_votes = 0;
-
-        // new role flags parsed from profile JSON
-        bool isClassicMod = false;
-        bool isClassicAdmin = false;
-        bool isLeaderboardMod = false;
-        bool isLeaderboardAdmin = false;
-        bool isPlatMod = false;
-        bool isPlatAdmin = false;
-        bool isDeveloper = false;
-        bool isOwner = false;
-
-        async::TaskHolder<web::WebResponse> m_profileTask;
+    struct Fields : rl::RLUserInfo {
+        async::TaskHolder<Result<RLUserInfo>> m_profileTask;
         async::TaskHolder<Result<std::string>> m_authTask;
         bool m_profileInFlight = false;
         int m_profileForAccount = -1;
@@ -59,6 +44,10 @@ class $modify(RLProfilePage, ProfilePage) {
             m_authTask.cancel();
         }
     };
+
+    Ref<CCLayer> getStatsBase() {
+        return static_cast<CCLayer*>(getChildren()->objectAtIndex(0));
+    }
 
     CCMenu* createStatEntry(char const* entryID, char const* labelID, std::string const& text, char const* iconFrameOrPath, SEL_MenuHandler iconCallback) {
         auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
@@ -127,6 +116,7 @@ class $modify(RLProfilePage, ProfilePage) {
         return entry;
     }
 
+    // TODO: Update to use getStatsBase()
     void updateStatLabel(char const* labelID, std::string const& text) {
         auto rlStatsMenu = getChildByIDRecursive("rl-stats-menu");
         if (!rlStatsMenu)
@@ -187,6 +177,7 @@ class $modify(RLProfilePage, ProfilePage) {
     }
 
     void loadPageFromUserInfo(GJUserScore* score) {
+        // TODO: Restore previous state
         ProfilePage::loadPageFromUserInfo(score);
 
         // recreate the rl button menu every time we load a profile to ensure it's
@@ -207,8 +198,8 @@ class $modify(RLProfilePage, ProfilePage) {
             m_fields->m_rlButtonBg->setContentSize({42.f, 110.f});
             m_fields->m_rlButtonBg->setPosition(
                 {winSize.width + m_fields->m_rlButtonBg->getContentSize().width +
-                        8.f / 2.f,
-                    winSize.height / 2.f});
+                     8.f / 2.f,
+                 winSize.height / 2.f});
             m_fields->m_rlButtonBg->setID("rl-button-bg");
 
             m_fields->m_rlButtonsMenu = CCMenu::create();
@@ -216,7 +207,7 @@ class $modify(RLProfilePage, ProfilePage) {
             m_fields->m_rlButtonsMenu->setContentSize({32.f, 100.f});
             m_fields->m_rlButtonsMenu->setPosition(
                 {m_fields->m_rlButtonBg->getContentSize().width / 2.f,
-                    m_fields->m_rlButtonBg->getContentSize().height / 2.f});
+                 m_fields->m_rlButtonBg->getContentSize().height / 2.f});
             m_fields->m_rlButtonsMenu->setLayout(
                 ColumnLayout::create()
                     ->setGap(6.f)
@@ -298,8 +289,8 @@ class $modify(RLProfilePage, ProfilePage) {
         row->setGap(4.f);
         m_fields->m_rlStatsMenu->setLayout(row);
 
-        auto starsText = GameToolbox::pointsToString(m_fields->m_stars);
-        auto planetsText = GameToolbox::pointsToString(m_fields->m_planets);
+        auto starsText = GameToolbox::pointsToString(m_fields->stars);
+        auto planetsText = GameToolbox::pointsToString(m_fields->planets);
 
         auto starsEntry = createStatEntry(
             "rl-stars-entry", "rl-stars-label", starsText, "RL_starMed.png"_spr, menu_selector(RLProfilePage::onBlueprintStars));
@@ -308,18 +299,18 @@ class $modify(RLProfilePage, ProfilePage) {
             "rl-planets-entry", "rl-planets-label", planetsText, "RL_planetMed.png"_spr, menu_selector(RLProfilePage::onPlanetsClicked));
 
         auto coinsEntry =
-            createStatEntry("rl-coins-entry", "rl-coins-label", GameToolbox::pointsToString(m_fields->m_coins), "RL_BlueCoinSmall.png"_spr, nullptr);
+            createStatEntry("rl-coins-entry", "rl-coins-label", GameToolbox::pointsToString(m_fields->coins), "RL_BlueCoinSmall.png"_spr, nullptr);
         auto votesEntry =
-            createStatEntry("rl-votes-entry", "rl-votes-label", GameToolbox::pointsToString(m_fields->m_votes), "RL_commVote01.png"_spr, nullptr);
+            createStatEntry("rl-votes-entry", "rl-votes-label", GameToolbox::pointsToString(m_fields->votes), "RL_commVote01.png"_spr, nullptr);
 
         m_fields->m_rlStatsMenu->addChild(starsEntry);
         m_fields->m_rlStatsMenu->addChild(planetsEntry);
         m_fields->m_rlStatsMenu->addChild(coinsEntry);
         m_fields->m_rlStatsMenu->addChild(votesEntry);
 
-        if (m_fields->m_points > 0) {
+        if (m_fields->points > 0) {
             auto pointsEntry =
-                createStatEntry("rl-points-entry", "rl-points-label", GameToolbox::pointsToString(m_fields->m_points), "RL_blueprintPoint01.png"_spr, menu_selector(RLProfilePage::onLayoutPointsClicked));
+                createStatEntry("rl-points-entry", "rl-points-label", GameToolbox::pointsToString(m_fields->points), "RL_blueprintPoint01.png"_spr, menu_selector(RLProfilePage::onLayoutPointsClicked));
             m_fields->m_rlStatsMenu->addChild(pointsEntry);
         }
 
@@ -353,18 +344,18 @@ class $modify(RLProfilePage, ProfilePage) {
 
     void onInfo(CCObject* sender) {
         if (m_fields->m_rlStatsMenu->isVisible()) {
-            auto morePoints = m_fields->m_points > 0
-                                  ? fmt::format("\n<cf>Blueprint Points:</c> {}", GameToolbox::pointsToString(m_fields->m_points))
+            auto morePoints = m_fields->points > 0
+                                  ? fmt::format("\n<cf>Blueprint Points:</c> {}", GameToolbox::pointsToString(m_fields->points))
                                   : "";
             auto statsInfo = fmt::format(
                 "<cl>Sparks: </c>{}\n<co>Planets:</c> {}\n<cb>Blue Coins:</c> {}\n<cg>Votes:</c> {}{}",
-                GameToolbox::pointsToString(m_fields->m_stars),
-                GameToolbox::pointsToString(m_fields->m_planets),
-                GameToolbox::pointsToString(m_fields->m_coins),
-                GameToolbox::pointsToString(m_fields->m_votes),
+                GameToolbox::pointsToString(m_fields->stars),
+                GameToolbox::pointsToString(m_fields->planets),
+                GameToolbox::pointsToString(m_fields->coins),
+                GameToolbox::pointsToString(m_fields->votes),
                 morePoints);
 
-            FLAlertLayer::create(this->m_score->m_userName.c_str(), statsInfo, "OK")->show();
+            FLAlertLayer::create(m_score->m_userName.c_str(), statsInfo, "OK")->show();
             return;
         }
         ProfilePage::onInfo(sender);
@@ -372,36 +363,40 @@ class $modify(RLProfilePage, ProfilePage) {
 
     // rl hooks below
     void onStatsSwitcher(CCObject* sender) {
-        auto statsMenu = getChildByIDRecursive("stats-menu");
-        auto rlStatsMenu = getChildByIDRecursive("rl-stats-menu");
+        auto* switcher = typeinfo_cast<CCMenuItemToggler*>(sender);
+        auto statsBase = getStatsBase();
+        if (!switcher || !statsBase) return;
 
-        auto mainMenu = typeinfo_cast<CCMenu*>(getChildByIDRecursive("main-menu"));
-        auto infoButton = mainMenu->getChildByIDRecursive("info-button");
+        auto* statsMenu = statsBase->getChildByID("stats-menu");
+        auto* rlStatsMenu = statsBase->getChildByID("rl-stats-menu");
+        if (!switcher || !statsMenu || !rlStatsMenu) return;
 
-        auto switcher = typeinfo_cast<CCMenuItemToggler*>(sender);
+        // Handle normal stats menu
+        const bool isToggled = switcher->isToggled();
+        statsMenu->setVisible(isToggled);
+        if (auto m = typeinfo_cast<CCMenu*>(statsMenu))
+            m->setEnabled(isToggled);
+        
+        // Handle RL stats menu
+        const bool isRLToggled = !isToggled;
+        rlStatsMenu->setVisible(isRLToggled);
+        if (auto m = typeinfo_cast<CCMenu*>(rlStatsMenu))
+            m->setEnabled(isRLToggled);
 
-        if (!statsMenu || !rlStatsMenu || !switcher)
-            return;
+        auto* mainMenu = typeinfo_cast<CCMenu*>(statsBase->getChildByID("main-menu"));
+        if (!mainMenu) return;
+        auto* refreshButton = mainMenu->getChildByID("refresh-button");
+        auto* infoButton = mainMenu->getChildByID("info-button");
+        if (!refreshButton || !infoButton) return;
 
-        if (!switcher->isToggled()) {
-            statsMenu->setVisible(false);
-            if (auto m = typeinfo_cast<CCMenu*>(statsMenu))
-                m->setEnabled(false);
-            rlStatsMenu->setVisible(true);
-            if (auto m = typeinfo_cast<CCMenu*>(rlStatsMenu))
-                m->setEnabled(true);
-            // info button blue
-            typeinfo_cast<CCRGBAProtocol*>(infoButton)->setColor(ccColor3B{0, 180, 255});
-        } else {
-            statsMenu->setVisible(true);
-            if (auto m = typeinfo_cast<CCMenu*>(statsMenu))
-                m->setEnabled(true);
-
-            rlStatsMenu->setVisible(false);
-            if (auto m = typeinfo_cast<CCMenu*>(rlStatsMenu))
-                m->setEnabled(false);
-            // normal color
-            typeinfo_cast<CCRGBAProtocol*>(infoButton)->setColor(ccColor3B{255, 255, 255});
+        // Change info button color
+        if (auto* info = typeinfo_cast<CCRGBAProtocol*>(infoButton)) {
+            if (isRLToggled)
+                // info button blue
+                info->setColor(ccColor3B{0, 180, 255});
+            else
+                // normal color
+                info->setColor(ccColor3B{255, 255, 255});
         }
     }
 
@@ -422,18 +417,16 @@ class $modify(RLProfilePage, ProfilePage) {
             showing ? winSize.width + bgW / 2 : winSize.width - bgW / 2;
         float targetArrowX = showing ? (winSize.width - arrowW / 2 - 4)
                                      : (winSize.width - bgW - arrowW / 2 - 8);
-
+        
         // exefm wants fast transition ig
         bool disableAnim =
             Mod::get()->getSettingValue<bool>("disableMenuAnimation");
         if (disableAnim) {
             // move instantly
             m_fields->m_rlButtonBg->setPosition({targetBgX, winSize.height / 2});
-            if (m_fields->m_rlToggleArrow) {
-                m_fields->m_rlToggleArrow->setPosition(
-                    {targetArrowX, winSize.height / 2});
-                if (auto sprite = static_cast<CCSprite*>(
-                        m_fields->m_rlToggleArrow->getNormalImage())) {
+            if (CCMenuItemSpriteExtra* arrow = m_fields->m_rlToggleArrow) {
+                arrow->setPosition({targetArrowX, winSize.height / 2});
+                if (auto sprite = static_cast<CCSprite*>(arrow->getNormalImage())) {
                     sprite->setFlipX(!showing);
                 }
             }
@@ -441,12 +434,11 @@ class $modify(RLProfilePage, ProfilePage) {
             auto moveBg = CCEaseBackOut::create(
                 CCMoveTo::create(0.3f, {targetBgX, winSize.height / 2}));
             m_fields->m_rlButtonBg->runAction(moveBg);
-            if (m_fields->m_rlToggleArrow) {
+            if (CCMenuItemSpriteExtra* arrow = m_fields->m_rlToggleArrow) {
                 auto moveArrow = CCEaseBackOut::create(
                     CCMoveTo::create(0.3f, {targetArrowX, winSize.height / 2}));
-                m_fields->m_rlToggleArrow->runAction(moveArrow);
-                if (auto sprite = static_cast<CCSprite*>(
-                        m_fields->m_rlToggleArrow->getNormalImage())) {
+                arrow->runAction(moveArrow);
+                if (auto sprite = static_cast<CCSprite*>(arrow->getNormalImage())) {
                     sprite->setFlipX(!showing);
                 }
             }
@@ -454,15 +446,19 @@ class $modify(RLProfilePage, ProfilePage) {
         m_fields->m_rlMenuVisible = !showing;
     }
 
-    void fetchProfileData(int accountId) {
+    void fetchProfileData(RLUserId accountId) {
         log::info("Fetching profile data for account ID: {}", accountId);
         m_fields->accountId = accountId;
-        if (m_fields->accountId == rl::ARCTICWOOF_ACCOUNT_ID) {
+        if (accountId == rl::ARCTICWOOF_ACCOUNT_ID) {
             RLAchievements::onReward("misc_arcticwoof");
         }
 
-        auto accountData = argon::getGameAccountData();
+        if (Mod::get()->hasSavedValue("argon_token")) {
+            return continueProfileFetch(accountId);
+        }
 
+        // TODO: Make this all async?
+        auto accountData = argon::getGameAccountData();
         m_fields->m_authTask.spawn(
             argon::startAuth(std::move(accountData)),
             [this, accountId](Result<std::string> res) {
@@ -477,46 +473,42 @@ class $modify(RLProfilePage, ProfilePage) {
                 auto err = res.unwrapErr();
                 log::warn("Auth failed: {}", err);
 
-                // If account data invalid, interactive auth fallback
-                if (err.find("Invalid account data") != std::string::npos) {
-                    log::info(
-                        "Falling back to interactive auth due to invalid account data");
-                    argon::AuthOptions options;
-                    options.progress = [](argon::AuthProgress progress) {
-                        log::debug("auth progress: {}",
-                            argon::authProgressToString(progress));
-                    };
-
-                    m_fields->m_authTask.spawn(
-                        argon::startAuth(std::move(options)),
-                        [this, accountId](Result<std::string> res2) {
-                            if (res2.isOk()) {
-                                auto token = std::move(res2).unwrap();
-                                log::debug("token obtained (fallback): {}", token);
-                                Mod::get()->setSavedValue("argon_token", token);
-                                this->continueProfileFetch(accountId);
-                            } else {
-                                log::warn("Interactive auth also failed: {}",
-                                    res2.unwrapErr());
-                                Notification::create(res2.unwrapErr(),
-                                    NotificationIcon::Error)
-                                    ->show();
-                                argon::clearToken();
-                            }
-                        });
-                } else {
+                if (err.find("Invalid account data") == std::string::npos) {
                     Notification::create(err, NotificationIcon::Error)->show();
                     argon::clearToken();
+                    return;
                 }
+
+                // Account data invalid, interactive auth fallback
+                log::info("Falling back to interactive auth due to invalid account data");
+                argon::AuthOptions options;
+                options.progress = [](argon::AuthProgress progress) {
+                    log::debug("auth progress: {}",
+                               argon::authProgressToString(progress));
+                };
+
+                m_fields->m_authTask.spawn(
+                    argon::startAuth(std::move(options)),
+                    [this, accountId](Result<std::string> res2) {
+                        if (res2.isOk()) {
+                            auto token = std::move(res2).unwrap();
+                            log::debug("token obtained (fallback): {}", token);
+                            Mod::get()->setSavedValue("argon_token", token);
+                            this->continueProfileFetch(accountId);
+                        } else {
+                            log::warn("Interactive auth also failed: {}",
+                                      res2.unwrapErr());
+                            Notification::create(res2.unwrapErr(),
+                                                 NotificationIcon::Error)
+                                ->show();
+                            argon::clearToken();
+                        }
+                    });
             });
     }
 
-    void continueProfileFetch(int accountId) {
-        std::string token = Mod::get()->getSavedValue<std::string>("argon_token");
-        auto postReq = web::WebRequest();
-        postReq.bodyJSON(matjson::makeObject({{"argonToken", token},
-            {"accountId", accountId}}));
-
+    // TODO: Make return arc::Future<>
+    void continueProfileFetch(RLUserId accountId) {
         if (m_fields->m_profileInFlight &&
             m_fields->m_profileForAccount == accountId) {
             log::debug("Profile request already in-flight for account {}", accountId);
@@ -529,72 +521,23 @@ class $modify(RLProfilePage, ProfilePage) {
 
         Ref<RLProfilePage> pageRef = this;
         m_fields->m_profileTask.spawn(
-            postReq.post(std::string(rl::BASE_API_URL) + "/profile"),
-            [pageRef, accountId](web::WebResponse response) {
-                if (pageRef) {
-                    pageRef->m_fields->m_profileInFlight = false;
-                } else {
-                    return;
-                }
+            RLUserInfo::get(accountId),
+            [pageRef, accountId](Result<RLUserInfo> infoOrErr) {
+                if (!pageRef) return;
+                pageRef->m_fields->m_profileInFlight = false;
 
-                log::info("Received response from server");
-
-                if (!response.ok()) {
-                    log::warn("{}: user doesn't exists in rated layouts",
-                        response.code());
-
-                    if (pageRef->m_fields->m_rlToggleArrow) {
-                        pageRef->m_fields->m_rlToggleArrow->setEnabled(false);
-                        pageRef->m_fields->m_rlToggleArrow->setOpacity(100);
+                if (infoOrErr.isErr()) {
+                    log::warn("Profile load failed: {}", infoOrErr.unwrapErr());
+                    // FIXME: Only do this with a non ok server response!
+                    if (auto* toggleArrow = pageRef->m_fields->m_rlToggleArrow) {
+                        toggleArrow->setEnabled(false);
+                        toggleArrow->setOpacity(100);
                     }
-
                     return;
                 }
 
-                auto jsonRes = response.json();
-                if (!jsonRes) {
-                    log::warn("Failed to parse JSON response");
-                    return;
-                }
-
-                auto json = jsonRes.unwrap();
-                int points = json["points"].asInt().unwrapOrDefault();
-                int stars = json["stars"].asInt().unwrapOrDefault();
-                int coins = json["coins"].asInt().unwrapOrDefault();
-                int planets = json["planets"].asInt().unwrapOrDefault();
-                int votes = json["votes"].asInt().unwrapOrDefault();
-                bool isSupporter = json["isSupporter"].asBool().unwrapOrDefault();
-                bool isBooster = json["isBooster"].asBool().unwrapOrDefault();
-                // new flags
-                bool isClassicMod = json["isClassicMod"].asBool().unwrapOrDefault();
-                bool isClassicAdmin =
-                    json["isClassicAdmin"].asBool().unwrapOrDefault();
-                bool isLeaderboardMod =
-                    json["isLeaderboardMod"].asBool().unwrapOrDefault();
-                bool isLeaderboardAdmin =
-                    json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
-                bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
-                bool isPlatAdmin = json["isPlatAdmin"].asBool().unwrapOrDefault();
-                bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
-                bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
-
-                pageRef->m_fields->m_stars = stars;
-                pageRef->m_fields->m_planets = planets;
-                pageRef->m_fields->m_points = points;
-                pageRef->m_fields->m_coins = coins;
-                pageRef->m_fields->m_votes = votes;
-
-                pageRef->m_fields->isSupporter = isSupporter;
-                pageRef->m_fields->isBooster = isBooster;
-
-                pageRef->m_fields->isClassicMod = isClassicMod;
-                pageRef->m_fields->isClassicAdmin = isClassicAdmin;
-                pageRef->m_fields->isLeaderboardMod = isLeaderboardMod;
-                pageRef->m_fields->isLeaderboardAdmin = isLeaderboardAdmin;
-                pageRef->m_fields->isPlatMod = isPlatMod;
-                pageRef->m_fields->isPlatAdmin = isPlatAdmin;
-                pageRef->m_fields->isDeveloper = isDeveloper;
-                pageRef->m_fields->isOwner = isOwner;
+                RLUserInfo info = std::move(infoOrErr).unwrap();
+                pageRef->m_fields->init(info);
 
                 // create the user buttons manage
                 if (!Mod::get()->getSettingValue<bool>("disableRLMenu")) {
@@ -643,65 +586,56 @@ class $modify(RLProfilePage, ProfilePage) {
                     };
 
                     // if user is owner
-                    if (pageRef->m_fields->isOwner) {
-                        if (!usernameMenu->getChildByID("rl-profile-owner-badge:1")) {
-                            auto ownerBadgeSprite = CCSprite::createWithSpriteFrameName(
-                                "RL_badgeOwner.png"_spr);
-                            addBadgeItem(ownerBadgeSprite, 10, "rl-profile-owner-badge:1");
-                        }
+                    if (info.isOwner && !usernameMenu->getChildByID("rl-profile-owner-badge:1")) {
+                        auto ownerBadgeSprite = CCSprite::createWithSpriteFrameName(
+                            "RL_badgeOwner.png"_spr);
+                        addBadgeItem(ownerBadgeSprite, 10, "rl-profile-owner-badge:1");
                     }
 
                     // if user is developer
-                    if (pageRef->m_fields->isDeveloper) {
-                        if (!usernameMenu->getChildByID("rl-profile-developer-badge:1")) {
-                            auto developerBadgeSprite = CCSprite::createWithSpriteFrameName(
-                                "RL_badgeDeveloper.png"_spr);
-                            addBadgeItem(developerBadgeSprite, 12, "rl-profile-developer-badge:1");
-                        }
+                    if (info.isDeveloper && !usernameMenu->getChildByID("rl-profile-developer-badge:1")) {
+                        auto developerBadgeSprite = CCSprite::createWithSpriteFrameName(
+                            "RL_badgeDeveloper.png"_spr);
+                        addBadgeItem(developerBadgeSprite, 12, "rl-profile-developer-badge:1");
                     }
 
-                    if (!usernameMenu->getChildByID(
-                            "rl-profile-classic-admin-badge:2") &&
-                        pageRef->m_fields->isClassicAdmin) {
+                    if (info.isClassicAdmin && !usernameMenu->getChildByID("rl-profile-classic-admin-badge:2")) {
                         auto adminBadgeSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgeAdmin01.png"_spr);
                         addBadgeItem(adminBadgeSprite, 5, "rl-profile-classic-admin-badge:2");
                     }
-                    if (!usernameMenu->getChildByID("rl-profile-plat-admin-badge:2") &&
-                        pageRef->m_fields->isPlatAdmin) {
+                    if (info.isPlatAdmin && !usernameMenu->getChildByID("rl-profile-plat-admin-badge:2")) {
                         auto adminBadgeSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgePlatAdmin01.png"_spr);
                         addBadgeItem(adminBadgeSprite, 7, "rl-profile-plat-admin-badge:2");
                     }
 
-                    if (!usernameMenu->getChildByID("rl-profile-classic-mod-badge:3") &&
-                        pageRef->m_fields->isClassicMod) {
+                    if (info.isClassicMod && !usernameMenu->getChildByID("rl-profile-classic-mod-badge:3")) {
                         auto modBadgeSprite =
                             CCSprite::createWithSpriteFrameName("RL_badgeMod01.png"_spr);
                         addBadgeItem(modBadgeSprite, 6, "rl-profile-classic-mod-badge:3");
                     }
-                    if (!usernameMenu->getChildByID("rl-profile-plat-mod-badge:3") &&
-                        pageRef->m_fields->isPlatMod) {
+                    if (info.isPlatMod && !usernameMenu->getChildByID("rl-profile-plat-mod-badge:3")) {
                         auto modBadgeSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgePlatMod01.png"_spr);
                         addBadgeItem(modBadgeSprite, 8, "rl-profile-plat-mod-badge:3");
                     }
 
-                    if (!usernameMenu->getChildByID("rl-profile-lb-admin-badge:2") &&
-                        pageRef->m_fields->isLeaderboardAdmin) {
+                    if (info.isLeaderboardAdmin &&
+                        !usernameMenu->getChildByID("rl-profile-lb-admin-badge:2")) {
                         auto adminBadgeSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgelbAdmin01.png"_spr);
                         addBadgeItem(adminBadgeSprite, 11, "rl-profile-lb-admin-badge:2");
                     }
-                    if (!usernameMenu->getChildByID("rl-profile-lb-mod-badge:3") &&
-                        pageRef->m_fields->isLeaderboardMod) {
+                    if (info.isLeaderboardMod &&
+                        !usernameMenu->getChildByID("rl-profile-lb-mod-badge:3")) {
                         auto modBadgeSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgelbMod01.png"_spr);
                         addBadgeItem(modBadgeSprite, 9, "rl-profile-lb-mod-badge:3");
                     }
 
                     // if user is supporter
-                    if (pageRef->m_fields->isSupporter &&
+                    if (info.isSupporter &&
                         !usernameMenu->getChildByID("rl-profile-supporter-badge:4")) {
                         auto supporterSprite = CCSprite::createWithSpriteFrameName(
                             "RL_badgeSupporter.png"_spr);
@@ -720,49 +654,44 @@ class $modify(RLProfilePage, ProfilePage) {
 
                 pageRef->updateStatLabel(
                     "rl-stars-label",
-                    GameToolbox::pointsToString(pageRef->m_fields->m_stars));
+                    GameToolbox::pointsToString(info.stars));
                 pageRef->updateStatLabel(
                     "rl-planets-label",
-                    GameToolbox::pointsToString(pageRef->m_fields->m_planets));
+                    GameToolbox::pointsToString(info.planets));
                 pageRef->updateStatLabel(
                     "rl-coins-label",
-                    GameToolbox::pointsToString(pageRef->m_fields->m_coins));
+                    GameToolbox::pointsToString(info.coins));
                 pageRef->updateStatLabel(
                     "rl-votes-label",
-                    GameToolbox::pointsToString(pageRef->m_fields->m_votes));
+                    GameToolbox::pointsToString(info.votes));
 
                 // If this is the player's own profile, check achievements for Sparks
                 // and Planets
                 if (pageRef->m_ownProfile) {
                     log::debug(
                         "checking Sparks/Planets achievements (stars={}, planets={})",
-                        pageRef->m_fields->m_stars,
-                        pageRef->m_fields->m_planets);
-                    RLAchievements::checkAll(RLAchievements::Collectable::Sparks,
-                        pageRef->m_fields->m_stars);
-                    RLAchievements::checkAll(RLAchievements::Collectable::Planets,
-                        pageRef->m_fields->m_planets);
-                    RLAchievements::checkAll(RLAchievements::Collectable::Points,
-                        pageRef->m_fields->m_points);
-                    RLAchievements::checkAll(RLAchievements::Collectable::Coins,
-                        pageRef->m_fields->m_coins);
-                    RLAchievements::checkAll(RLAchievements::Collectable::Votes,
-                        pageRef->m_fields->m_votes);
+                        info.stars,
+                        info.planets);
+                    RLAchievements::checkAll(RLAchievements::Collectable::Sparks, info.stars);
+                    RLAchievements::checkAll(RLAchievements::Collectable::Planets, info.planets);
+                    RLAchievements::checkAll(RLAchievements::Collectable::Points, info.points);
+                    RLAchievements::checkAll(RLAchievements::Collectable::Coins, info.coins);
+                    RLAchievements::checkAll(RLAchievements::Collectable::Votes, info.votes);
                 }
 
                 // Handle creator points
                 if (auto rlStatsMenu =
                         pageRef->getChildByIDRecursive("rl-stats-menu")) {
-                    if (pageRef->m_fields->m_points > 0 &&
+                    if (pageRef->m_fields->points > 0 &&
                         !Mod::get()->getSettingValue<bool>("disableCreatorPoints")) {
                         if (!rlStatsMenu->getChildByIDRecursive("rl-points-entry")) {
                             auto pointsEntry = pageRef->createStatEntry(
-                                "rl-points-entry", "rl-points-label", GameToolbox::pointsToString(pageRef->m_fields->m_points), "RL_blueprintPoint01.png"_spr, menu_selector(RLProfilePage::onLayoutPointsClicked));
+                                "rl-points-entry", "rl-points-label", GameToolbox::pointsToString(info.points), "RL_blueprintPoint01.png"_spr, menu_selector(RLProfilePage::onLayoutPointsClicked));
                             rlStatsMenu->addChild(pointsEntry);
                         } else {
                             pageRef->updateStatLabel(
                                 "rl-points-label",
-                                GameToolbox::pointsToString(pageRef->m_fields->m_points));
+                                GameToolbox::pointsToString(info.points));
                         }
                     } else {
                         if (auto creatorPoint =
@@ -778,41 +707,30 @@ class $modify(RLProfilePage, ProfilePage) {
 
     void onBadgeClicked(CCObject* sender) {
         auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
-        if (!btn)
-            return;
-        int tag = btn->getTag();
-        switch (tag) {
+        if (!btn) return;
+        switch (btn->getTag()) {
             case 3:  // Supporters
-                rl::showSupporterInfo();
-                break;
+                return rl::showSupporterInfo();
             case 4:  // Boosters
-                rl::showBoosterInfo();
-                break;
+                return rl::showBoosterInfo();
             case 5:  // Classic Admins
-                rl::showClassicAdminInfo();
-                break;
+                return rl::showClassicAdminInfo();
             case 6:  // Classic Mods
-                rl::showClassicModInfo();
-                break;
+                return rl::showClassicModInfo();
             case 7:  // Plat Admins
-                rl::showPlatAdminInfo();
-                break;
+                return rl::showPlatAdminInfo();
             case 8:  // Plat Mods
-                rl::showPlatModInfo();
-                break;
+                return rl::showPlatModInfo();
             case 9:  // Leaderboard Mods
-                rl::showLeaderboardModInfo();
-                break;
+                return rl::showLeaderboardModInfo();
             case 10:  // Owner
-                rl::showOwnerInfo();
-                break;
+                return rl::showOwnerInfo();
             case 11:  // Leaderboard Admins
-                rl::showLeaderboardAdminInfo();
-                break;
+                return rl::showLeaderboardAdminInfo();
             case 12:  // Developer
-                rl::showDevInfo();
+                return rl::showDevInfo();
             default:
-                break;
+                return;
         }
     }
 
@@ -820,7 +738,7 @@ class $modify(RLProfilePage, ProfilePage) {
         // only leaderboard moderators may manage users
         if (!(rl::isUserHasPerms() || rl::isUserOwner() || rl::isUserDeveloper())) {
             Notification::create("You don't have permission to manage users.",
-                NotificationIcon::Error)
+                                 NotificationIcon::Error)
                 ->show();
             return;
         }
@@ -833,7 +751,7 @@ class $modify(RLProfilePage, ProfilePage) {
         // only leaderboard moderators may manage levels
         if (!(rl::isUserLeaderboardMod() || rl::isUserLeaderboardAdmin() || rl::isUserOwner() || rl::isUserDeveloper())) {
             Notification::create("You don't have permission to manage levels.",
-                NotificationIcon::Error)
+                                 NotificationIcon::Error)
                 ->show();
             return;
         }

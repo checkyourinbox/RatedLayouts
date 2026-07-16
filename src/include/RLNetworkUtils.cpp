@@ -14,8 +14,8 @@ using IdHasher = NoHashHasher<int>;
 using RequestCacheType = std::unordered_map<int, RequestCacheEntry, IdHasher>;
 
 namespace {
-    enum { kRequestCacheTimeout = 30 };
-} // namespace
+enum { kRequestCacheTimeout = 30 };
+}  // namespace
 
 static std::recursive_timed_mutex RequestCacheMutex;
 static std::optional<matjson::Value> RequestCache;
@@ -88,8 +88,7 @@ static void pruneCacheMap(std::string_view name, RequestCacheType& cache) {
     for (auto const& [id, entry] : cache) {
         entries.emplace_back(id, entry.timestamp);
     }
-    std::sort(entries.begin(), entries.end(),
-    [](auto const& a, auto const& b) {
+    std::sort(entries.begin(), entries.end(), [](auto const& a, auto const& b) {
         return a.second < b.second;
     });
 
@@ -97,11 +96,12 @@ static void pruneCacheMap(std::string_view name, RequestCacheType& cache) {
     for (size_t i = 0; i < removeCount; ++i) {
         cache.erase(entries[i].first);
     }
-    log::debug("Cleared in-memory cache '{}'", name);
+    log::debug("Pruned in-memory cache '{}'", name);
 }
 
 static std::optional<matjson::Value> getCached(std::string_view name,
-                                               RequestCacheType& cache, int id) {
+                                               RequestCacheType& cache,
+                                               int id) {
     std::lock_guard lock(RequestCacheMutex);
     auto it = cache.find(id);
     if (it != cache.end() && it->second.isValid()) {
@@ -117,7 +117,8 @@ static std::optional<matjson::Value> getCached(std::string_view name,
 }
 
 static std::optional<matjson::Value> getStale(std::string_view name,
-                                              RequestCacheType& cache, int id) {
+                                              RequestCacheType& cache,
+                                              int id) {
     std::lock_guard lock(RequestCacheMutex);
     auto it = cache.find(id);
     if (it != cache.end())
@@ -199,7 +200,7 @@ matjson::Value rl::loadRequestCacheRoot() {
 
 bool rl::saveRequestCacheRoot() {
     std::lock_guard lock(RequestCacheMutex);
-    if (!RequestCache) return true; // No cache
+    if (!RequestCache) return true;  // No cache
     auto path = getRequestCachePath();
     std::filesystem::create_directories(path.parent_path());
     auto writeRes = utils::file::writeString(
@@ -218,8 +219,7 @@ bool rl::saveRequestCacheRoot(matjson::Value const& root) {
 static bool doesRequestCacheNeedSave() {
     if (LastTimeRequestCacheSavedToFile <= -1)
         return true;
-    const RequestTimestamp diff
-        = getCurrentTimestamp() - LastTimeRequestCacheSavedToFile;
+    const RequestTimestamp diff = getCurrentTimestamp() - LastTimeRequestCacheSavedToFile;
     return diff < kRequestCacheTimeout;
 }
 
@@ -248,7 +248,7 @@ std::optional<RequestCacheEntry> rl::loadRequestCacheEntry(std::string_view sect
 void rl::storeRequestCacheEntry(std::string_view section, int id, matjson::Value const& data) {
     std::lock_guard lock(RequestCacheMutex);
     if (auto* sectionPtr = loadRequestSection(section)) {
-        RequestCacheEntry req { data, getCurrentTimestamp() };
+        RequestCacheEntry req{data, getCurrentTimestamp()};
         std::string key = geode::utils::numToString(id);
         sectionPtr->set(key, req);
         saveRequestCacheRootWithTimeout();
