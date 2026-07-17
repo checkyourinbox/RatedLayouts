@@ -5,6 +5,7 @@
 #include <optional>
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CommentCell.hpp>
+#include "FallbackBadges.hpp"
 
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
@@ -262,6 +263,7 @@ class $modify(RLCommentCell, CommentCell) {
     void clearAllRoleBadges(RLUserId accountId) {
         m_fields->clear();
         if (!m_mainLayer) [[likely]] { return; }
+        rl::clearFallbackBadgesImpl(Ref(this), "comment");
         // remove any glow
         auto glowId = fmt::format("rl-comment-glow-{}", accountId);
         if (auto glow = m_mainLayer->getChildByIDRecursive(glowId))
@@ -381,6 +383,7 @@ class $modify(RLCommentCell, CommentCell) {
             log::warn("main layer is null, cannot load badge for comment");
             return;
         }
+        rl::setupFallbackBadgesImpl(Ref(this), m_fields->userInfo(), "comment", 0.550f);
         applyCommentTextColor(accountId);
     }
 

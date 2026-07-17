@@ -7,6 +7,7 @@
 #include <arc/future/Future.hpp>
 #include <matjson.hpp>
 #include "RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
 
 namespace rl {
 using RLUserId = int64_t;
@@ -55,6 +56,34 @@ public:
 
 inline std::filesystem::path getDataCachePath() {
     return dirs::getModsSaveDir() / Mod::get()->getID() / "data_cache.json";
+}
+
+inline bool doesUserHaveBadge(RLBadgeKind K, RLUserInfo const& info) {
+    using enum RLBadgeKind;
+    switch (K) {
+        case Supporter:
+            return info.isSupporter;
+        case Booster:
+            return info.isBooster;
+        case ClassicAdmin:
+            return info.isClassicAdmin;
+        case ClassicMod:
+            return info.isClassicMod;
+        case PlatAdmin:
+            return info.isPlatAdmin;
+        case PlatMod:
+            return info.isPlatMod;
+        case LeaderboardMod:
+            return info.isLeaderboardMod;
+        case Owner:
+            return info.isOwner;
+        case LeaderboardAdmin:
+            return info.isLeaderboardAdmin;
+        case Developer:
+            return info.isDeveloper;
+        default:
+            return false;
+    }
 }
 }  // namespace rl
 

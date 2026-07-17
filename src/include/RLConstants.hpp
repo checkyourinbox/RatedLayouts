@@ -93,6 +93,18 @@ inline bool isUserLeaderboardMod() {
     return Mod::get()->getSavedValue<bool>("isLeaderboardMod");
 }
 
+/*
+Owner
+Developer
+ClassicAdmin
+PlatAdmin
+LeaderboardAdmin
+ClassicMod
+PlatMod
+LeaderboardMod
+Supporter
+Booster
+*/
 enum class RLBadgeKind {
     Supporter = 3,
     Booster = 4,

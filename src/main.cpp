@@ -20,34 +20,6 @@ using namespace rl;
 
 // TODO: Check on random performance issues
 
-static bool doesUserHaveBadge(RLBadgeKind K, RLUserInfo const& info) {
-    using enum RLBadgeKind;
-    switch (K) {
-        case Supporter:
-            return info.isSupporter;
-        case Booster:
-            return info.isBooster;
-        case ClassicAdmin:
-            return info.isClassicAdmin;
-        case ClassicMod:
-            return info.isClassicMod;
-        case PlatAdmin:
-            return info.isPlatAdmin;
-        case PlatMod:
-            return info.isPlatMod;
-        case LeaderboardMod:
-            return info.isLeaderboardMod;
-        case Owner:
-            return info.isOwner;
-        case LeaderboardAdmin:
-            return info.isLeaderboardAdmin;
-        case Developer:
-            return info.isDeveloper;
-        default:
-            return false;
-    }
-}
-
 static void isUserInBadge(RLBadgeKind K, alpha::badgify::Badge badge) {
     const RLUserId accountId = badge.user->m_accountID;
     async::spawn(
@@ -57,7 +29,7 @@ static void isUserInBadge(RLBadgeKind K, alpha::badgify::Badge badge) {
                 log::warn("Could not load user info: {}", info.unwrapErr());
                 return;
             }
-            if (!doesUserHaveBadge(K, info.unwrap()))
+            if (!rl::doesUserHaveBadge(K, info.unwrap()))
                 return;
             // Show badge
             Loader::get()->queueInMainThread([K, badge = std::move(badge)]() {

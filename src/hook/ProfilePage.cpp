@@ -6,6 +6,7 @@
 #include <Geode/utils/terminate.hpp>
 #include <arc/future/Future.hpp>
 #include <argon/argon.hpp>
+#include "FallbackBadges.hpp"
 
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
@@ -509,7 +510,7 @@ class $modify(RLProfilePage, ProfilePage) {
             });
     }
 
-    // TODO: Make return arc::Future<>
+    // TODO: Make return arc::Future<>?
     void continueProfileFetch(RLUserId accountId) {
         if (m_fields->m_profileInFlight &&
             m_fields->m_profileForAccount == accountId) {
@@ -572,6 +573,9 @@ class $modify(RLProfilePage, ProfilePage) {
                         }
                     }
                 }
+
+                rl::setupFallbackBadgesImpl(pageRef, info, "profile");
+
                 pageRef->updateStatLabel(
                     "rl-stars-label",
                     GameToolbox::pointsToString(info.stars));
