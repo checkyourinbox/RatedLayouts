@@ -34,6 +34,7 @@
 #include "RLDialogIcons.hpp"
 #include "popup/RLQueueLevelPopup.hpp"
 #include "RLRubyUtils.hpp"
+#include "utils/CachedSettings.hpp"
 
 struct ModInfo {
     std::string message;
@@ -97,7 +98,7 @@ bool RLMenuLayer::init() {
         return false;
 
     // quick achievements for custom bg
-    if (Mod::get()->getSettingValue<int>("backgroundType") != 1) {
+    if (CachedSettings::get()->backgroundType != 1) {
         RLAchievements::onReward("misc_custom_bg");
     }
 
@@ -378,7 +379,7 @@ bool RLMenuLayer::init() {
         infoMenu->addChild(addDialogueBtn);
     }
 
-    if (!Mod::get()->getSettingValue<bool>("disableModInfo")) {
+    if (!CachedSettings::get()->disableModInfo) {
         // mod info stuff
         bool isCollapsed = Mod::get()->getSavedValue<bool>("mod_info_collapsed", false);
         m_modInfoCollapsed = isCollapsed;
@@ -481,7 +482,7 @@ void RLMenuLayer::onCollapseInfoButton(CCObject* sender) {
     auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
     auto icon = static_cast<CCNode*>(btn->getNormalImage());
 
-    if (Mod::get()->getSettingValue<bool>("disableMenuAnimation")) {
+    if (CachedSettings::get()->disableMenuAnimation) {
         // if animation is disabled, just move it without animation
         m_modInfoBg->setPosition({currentPos.x, targetY});
         icon->setRotation(m_modInfoCollapsed ? 180.f : 0.f);

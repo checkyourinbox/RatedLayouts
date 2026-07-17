@@ -8,6 +8,7 @@
 
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 #include "utils/RLData.hpp"
 
 // TODO: Merge implementation between this and ProfilePage
@@ -178,7 +179,7 @@ class $modify(RLCommentCell, CommentCell) {
         m_fields->init(info);
         bool validCell = m_mainLayer && m_backgroundLayer;
         const auto nameplate = info.nameplate;
-        if (validCell && nameplate != 0 && !Mod::get()->getSettingValue<bool>("disableNameplateInComment")) {
+        if (validCell && nameplate != 0 && !CachedSettings::get()->disableNameplateInComment) {
             std::string url = fmt::format(
                 "{}/nameplates/banner/nameplate_{}.png",
                 std::string(rl::BASE_API_URL),
@@ -301,7 +302,7 @@ class $modify(RLCommentCell, CommentCell) {
                 // nameplate thing
                 bool validCell = cellRef && cellRef->m_mainLayer && cellRef->m_backgroundLayer;
                 const auto nameplate = info.nameplate;
-                if (validCell && nameplate != 0 && !Mod::get()->getSettingValue<bool>("disableNameplateInComment")) {
+                if (validCell && nameplate != 0 && !CachedSettings::get()->disableNameplateInComment) {
                     std::string url = fmt::format(
                         "{}/nameplates/banner/nameplate_{}.png",
                         std::string(rl::BASE_API_URL),
@@ -394,14 +395,14 @@ class $modify(RLCommentCell, CommentCell) {
         if (stars <= 0 && planets <= 0)
             return;
         // global disable
-        if (Mod::get()->getSettingValue<bool>("disableCommentGlow")) {
+        if (CachedSettings::get()->disableCommentGlow) {
             log::debug("Skipping star glow: global setting disabled");
             return;
         }
 
         if (m_fields->nameplate != 0 &&
-            Mod::get()->getSettingValue<bool>("disableCommentGlowNameplate")) {
-            if (!Mod::get()->getSettingValue<bool>("disableNameplateInComment")) {
+            CachedSettings::get()->disableCommentGlowNameplate) {
+            if (!CachedSettings::get()->disableNameplateInComment) {
                 log::debug(
                     "Skipping star glow for account {} due to nameplate and setting",
                     accountId);

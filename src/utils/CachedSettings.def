@@ -1,0 +1,35 @@
+#pragma once
+
+#include "ccTypes.h"
+
+/// Takes a macro `X(NAME, TYPE, SETTING)`.
+#define RL_SAVED_SETTINGS(X)                                            \
+    X(rgbBackground, cocos2d::ccColor3B, "rgbBackground")               \
+    X(backgroundType, int, "backgroundType")                            \
+    X(notiScale, float, "notiScale")                                    \
+    X(pollingInterval, float, "pollingInterval")                        \
+    X(removeSeconds, int, "removeSeconds")                              \
+    X(requestCacheLifetime, int, "requestCacheLifetime")                \
+    X(requestCacheMaxItems, int, "requestCacheMaxItems")                \
+    X(disableBackground, bool, "disableBackground")                     \
+    X(disableNewRate, bool, "disableNewRate")                           \
+    X(disableNewRateInLevel, bool, "disableNewRateInLevel")             \
+    X(disableNameplate, bool, "disableNameplate")                       \
+    X(disableNameplateInComment, bool, "disableNameplateInComment")     \
+    X(disableRLReq, bool, "disableRLReq")                               \
+    X(disableRLMenu, bool, "disableRLMenu")                             \
+    X(disableMenuAnimation, bool, "disableMenuAnimation")               \
+    X(disableRewardAnimation, bool, "disableRewardAnimation")           \
+    X(disableParticles, bool, "disableParticles")                       \
+    X(disableRLSearchLayer, bool, "disableRLSearchLayer")               \
+    X(disableCommentGlow, bool, "disableCommentGlow")                   \
+    X(disableCommentGlowNameplate, bool, "disableCommentGlowNameplate") \
+    X(disableMenuButton, bool, "disableMenuButton")                     \
+    X(disableScrollbar, bool, "disableScrollbar")                       \
+    X(disableCreatorPoints, bool, "disableCreatorPoints")               \
+    X(disableCreatorPointsToggle, bool, "disableCreatorPointsToggle")   \
+    X(disableModInfo, bool, "disableModInfo")                           \
+    X(disableGarageStats, bool, "disableGarageStats")                   \
+    X(disableRejectedLayouts, bool, "disableRejectedLayouts")           \
+    X(disableRejectedLayoutsGlow, bool, "disableRejectedLayoutsGlow")   \
+    X(disableFetchAverageDifficulty, bool, "disableFetchAverageDifficulty")

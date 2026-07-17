@@ -9,6 +9,7 @@
 #include <string_view>
 #include "RLConfig.hpp"
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
 
@@ -72,12 +73,12 @@ inline std::filesystem::path getNameplateCachePath(int nameplateId) {
 
 inline std::int64_t getRequestCacheLifetimeSeconds() {
     if (!Mod::get()) return 360;
-    return Mod::get()->getSettingValue<int>("requestCacheLifetime");
+    return CachedSettings::get()->requestCacheLifetime;
 }
 
 inline int getRequestCacheMaxItems() {
     if (!Mod::get()) return 128;
-    return Mod::get()->getSettingValue<int>("requestCacheMaxItems");
+    return CachedSettings::get()->requestCacheMaxItems;
 }
 
 RL_ALWAYS_INLINE bool isRequestCacheValid(RequestTimestamp timestamp, std::int64_t lifetime) {

@@ -2,12 +2,14 @@
 #include "RLConstants.hpp"
 #include "RLLevelInfo.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/utils/async.hpp>
 #include <string>
 
 using namespace geode::prelude;
+using namespace rl;
 
 class $modify(RLLevelCell, LevelCell) {
     struct Fields {
@@ -44,7 +46,7 @@ class $modify(RLLevelCell, LevelCell) {
             if (this->m_fields->m_previouslyRejected && !this->m_fields->m_isRejected) rejectedLabel = CCLabelBMFont::create("RL Previously Rejected", "bigFont.fnt");
             auto icon = CCSprite::createWithSpriteFrameName("RL_cross_no_box.png"_spr);
 
-            if (!Mod::get()->getSettingValue<bool>("disableRejectedLayoutsGlow") && m_fields->m_isRejected) {
+            if (!CachedSettings::get()->disableRejectedLayoutsGlow && m_fields->m_isRejected) {
                 auto glow = CCLayerGradient::create({255, 40, 40, 80}, {220, 40, 40, 0}, {-1.f, 1.f});
                 glow->setID("rl-rejected-glow");
                 glow->changeWidthAndHeight(m_width, m_height);
@@ -822,7 +824,7 @@ class $modify(RLLevelCell, LevelCell) {
         int levelId = static_cast<int>(level->m_levelID);
 
         this->clearAverageDifficultyLabel();
-        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !Mod::get()->getSettingValue<bool>("disableFetchAverageDifficulty")) {
+        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !CachedSettings::get()->disableFetchAverageDifficulty) {
             Ref<LevelCell> cellRef = this;
             auto postReq = web::WebRequest();
             matjson::Value jsonBody = matjson::Value::object();
@@ -862,7 +864,7 @@ class $modify(RLLevelCell, LevelCell) {
         }
 
         // request rejection status before returning cached data so rejected UI can still update
-        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !Mod::get()->getSettingValue<bool>("disableRejectedLayouts")) {
+        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !CachedSettings::get()->disableRejectedLayouts) {
             Ref<LevelCell> cellRef = this;
             auto checkRejectReq = web::WebRequest();
             checkRejectReq.param("levelId", numToString(levelId));

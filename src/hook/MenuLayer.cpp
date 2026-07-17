@@ -2,8 +2,10 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include "layer/RLMenuLayer.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 class $modify(RLHookMenuLayer, MenuLayer) {
     bool init() {
@@ -11,7 +13,7 @@ class $modify(RLHookMenuLayer, MenuLayer) {
             return false;
 
         auto mainMenu = this->getChildByID("main-menu");
-        bool isDisabled = Mod::get()->getSettingValue<bool>("disableMenuButton");
+        bool isDisabled = CachedSettings::get()->disableMenuButton;
 
         if (mainMenu && !isDisabled) {
             // sprite

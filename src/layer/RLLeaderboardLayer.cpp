@@ -5,6 +5,9 @@
 #include <cue/RepeatingBackground.hpp>
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
+
+using namespace rl;
 
 bool RLLeaderboardLayer::init() {
     if (!CCLayer::init())
@@ -33,7 +36,7 @@ bool RLLeaderboardLayer::init() {
     this->addChild(m_userListNode, 5);
     m_scrollLayer = m_userListNode->getScrollLayer();
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollBar = Scrollbar::create(m_userListNode->getScrollLayer());
         scrollBar->setPosition({m_userListNode->getContentSize().width + 24.f,
             m_userListNode->getContentSize().height / 2});
@@ -109,7 +112,7 @@ bool RLLeaderboardLayer::init() {
     typeMenu->addChild(votesTab);
     m_votesTab = votesTab;
 
-    if (Mod::get()->getSettingValue<bool>("disableCreatorPoints") == true) {
+    if (CachedSettings::get()->disableCreatorPoints == true) {
         if (m_creatorTab) {
             m_creatorTab->setEnabled(false);
             m_creatorTab->setVisible(false);
@@ -145,7 +148,7 @@ bool RLLeaderboardLayer::init() {
     infoMenu->addChild(m_accountRefreshBtn);
 
     auto creatorTypeIcon = CCSpriteGrayscale::createWithSpriteFrameName("RL_blueprintPoint01.png"_spr);
-    if (creatorTypeIcon && !Mod::get()->getSettingValue<bool>("disableCreatorPointsToggle")) {
+    if (creatorTypeIcon && !CachedSettings::get()->disableCreatorPointsToggle) {
         auto creatorTypeOff = EditorButtonSprite::create(
             CCSpriteGrayscale::createWithSpriteFrameName("RL_blueprintPoint01.png"_spr),
             EditorBaseColor::Gray,
@@ -491,7 +494,7 @@ void RLLeaderboardLayer::populateLeaderboard(
         rowContainer->addChild(bgSprite, 0);
 
         if (nameplateId != 0 &&
-            !Mod::get()->getSettingValue<bool>("disableNameplate")) {
+            !CachedSettings::get()->disableNameplate) {
             std::string url = fmt::format(
                 "{}/nameplates/banner/nameplate_{}.png",
                 std::string(rl::BASE_API_URL),

@@ -28,6 +28,10 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 
+#AlignConsecutiveMacros: Consecutive
+IndentPPDirectives: AfterHash
+PPIndentWidth: 1
+
 BreakBeforeBraces: Attach
 PointerAlignment: Left
 SpaceAroundPointerQualifiers: Default

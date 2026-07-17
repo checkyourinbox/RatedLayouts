@@ -10,11 +10,12 @@
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
-#include "utils/RLData.hpp"
 #include "layer/RLLevelBrowserLayer.hpp"
 #include "player/RLDifficultyTotalPopup.hpp"
 #include "player/RLUserControl.hpp"
 #include "player/RLUserLevelControl.hpp"
+#include "utils/CachedSettings.hpp"
+#include "utils/RLData.hpp"
 
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/loader/Mod.hpp"
@@ -193,7 +194,7 @@ class $modify(RLProfilePage, ProfilePage) {
             m_fields->m_rlStatsMenu = nullptr;
         }
 
-        if (!Mod::get()->getSettingValue<bool>("disableRLMenu")) {
+        if (!CachedSettings::get()->disableRLMenu) {
             auto winSize = CCDirector::sharedDirector()->getWinSize();
             m_fields->m_rlButtonBg = NineSlice::create("GJ_square02.png");
             m_fields->m_rlButtonBg->setContentSize({42.f, 110.f});
@@ -421,7 +422,7 @@ class $modify(RLProfilePage, ProfilePage) {
 
         // exefm wants fast transition ig
         bool disableAnim =
-            Mod::get()->getSettingValue<bool>("disableMenuAnimation");
+            CachedSettings::get()->disableMenuAnimation;
         if (disableAnim) {
             // move instantly
             m_fields->m_rlButtonBg->setPosition({targetBgX, winSize.height / 2});
@@ -541,7 +542,7 @@ class $modify(RLProfilePage, ProfilePage) {
                 pageRef->m_fields->init(info);
 
                 // create the user buttons manage
-                if (!Mod::get()->getSettingValue<bool>("disableRLMenu")) {
+                if (!CachedSettings::get()->disableRLMenu) {
                     auto rlButtonsMenu = pageRef->getChildByIDRecursive("rl-buttons-menu");
                     if (rlButtonsMenu && (rl::isUserAdmin() || rl::isUserLeaderboardMod() || rl::isUserOwner() || rl::isUserDeveloper())) {
                         if (!rlButtonsMenu->getChildByID("rl-manage-btn")) {
@@ -602,7 +603,7 @@ class $modify(RLProfilePage, ProfilePage) {
                 if (auto rlStatsMenu =
                         pageRef->getChildByIDRecursive("rl-stats-menu")) {
                     if (pageRef->m_fields->points > 0 &&
-                        !Mod::get()->getSettingValue<bool>("disableCreatorPoints")) {
+                        !CachedSettings::get()->disableCreatorPoints) {
                         if (!rlStatsMenu->getChildByIDRecursive("rl-points-entry")) {
                             auto pointsEntry = pageRef->createStatEntry(
                                 "rl-points-entry", "rl-points-label", GameToolbox::pointsToString(info.points), "RL_blueprintPoint01.png"_spr, menu_selector(RLProfilePage::onLayoutPointsClicked));

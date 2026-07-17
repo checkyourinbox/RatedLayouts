@@ -5,6 +5,7 @@
 #include "RLConstants.hpp"
 #include "RLLevelInfo.hpp"
 #include "layer/RLLevelBrowserLayer.hpp"
+#include "utils/CachedSettings.hpp"
 #include <Geode/modify/GameLevelManager.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
@@ -12,6 +13,7 @@
 #include <cstdio>
 
 using namespace geode::prelude;
+using namespace rl;
 
 // helper prototypes
 static std::string formatTime(long seconds);
@@ -457,7 +459,7 @@ bool RLEventLayouts::init() {
             });
 
         // funny animation
-        if (!Mod::get()->getSettingValue<bool>("disableMenuAnimation")) {
+        if (!CachedSettings::get()->disableMenuAnimation) {
             m_mainLayer->setPositionX(winSize.width * -0.15f);
             auto sequence = CCSequence::create(
                 CCEaseElasticOut::create(CCMoveTo::create(0.4f, {winSize.width * 0.5f, winSize.height / 2}), 0.85),

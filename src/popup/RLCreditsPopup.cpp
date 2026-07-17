@@ -1,8 +1,9 @@
 #include "popup/RLCreditsPopup.hpp"
-#include "RLAchievements.hpp"
 #include <Geode/Geode.hpp>
 #include <cue/ListNode.hpp>
+#include "RLAchievements.hpp"
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
 using namespace rl;
@@ -34,7 +35,7 @@ bool RLCreditsPopup::init() {
     if (!scrollLayer)
         return false;
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollbar = Scrollbar::create(scrollLayer);
         scrollbar->setPosition({m_mainLayer->getContentSize().width - 35.f,
             (m_mainLayer->getContentSize().height / 2.f) - 5.f});

@@ -1,12 +1,14 @@
 #include "RLNotificationAlert.hpp"
-#include "Geode/utils/general.hpp"
 #include "RLNotificationOverlay.hpp"
+#include "utils/CachedSettings.hpp"
+#include "Geode/utils/general.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/binding/FMODAudioEngine.hpp>
 #include <Geode/ui/NineSlice.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
 
 static int getDifficulty(int numerator) {
     int difficultyLevel = 0;
@@ -91,7 +93,7 @@ bool RLNotificationAlert::init(std::string const& title,
     bg->setID("rl-notification-bg");
     bg->setPosition({5.f, 5.f});
     bg->setAnchorPoint({0, 0});
-    bg->setScale(Mod::get()->getSettingValue<float>("notiScale"));
+    bg->setScale(CachedSettings::get()->notiScale);
 
     // Difficulty sprite
     auto diffSprite = GJDifficultySprite::create(getDifficulty(difficulty),
@@ -206,7 +208,7 @@ bool RLNotificationAlert::init(std::string const& title,
     alertMenu->addChild(item);
 
     // Auto-dismiss based on setting value
-    int removeSeconds = Mod::get()->getSettingValue<int>("removeSeconds");
+    int removeSeconds = CachedSettings::get()->removeSeconds;
     if (removeSeconds <= 0) {
         removeSeconds = 5;  // Default to 5 seconds if invalid
     }

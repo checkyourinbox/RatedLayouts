@@ -1,11 +1,13 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelSearchLayer.hpp>
 
+#include "RLNetworkUtils.hpp"
 #include "layer/RLSearchLayer.hpp"
 #include "layer/RLMenuLayer.hpp"
-#include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
 
 class $modify(RLLevelSearchLayer, LevelSearchLayer) {
     bool init(int type) {
@@ -42,7 +44,7 @@ class $modify(RLLevelSearchLayer, LevelSearchLayer) {
                 ->show();
             return;
         }
-        bool disableSearch = Mod::get()->getSettingValue<bool>("disableRLSearchLayer");  // please work no. 2
+        bool disableSearch = CachedSettings::get()->disableRLSearchLayer;  // please work no. 2
         CCLayer* layer = nullptr;
         if (disableSearch) {
             layer = RLMenuLayer::create();

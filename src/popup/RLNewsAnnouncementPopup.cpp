@@ -1,6 +1,7 @@
 #include "popup/RLNewsAnnouncementPopup.hpp"
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 #include "Geode/utils/general.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/General.hpp>
@@ -9,6 +10,7 @@
 #include <cue/ListNode.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
 
 static std::string formatAnnouncementTimestamp(std::string const& ts) {
     if (ts.empty()) {
@@ -128,7 +130,7 @@ bool RLNewsAnnouncementPopup::init() {
     changelogItem->setPosition({cs.width, cs.height - 4.f});
     m_buttonMenu->addChild(changelogItem);
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollBar = Scrollbar::create(m_listNode->getScrollLayer());
         scrollBar->setPosition({listSize.width + 30.f, cs.height / 2.f - 10.f});
         scrollBar->setScale(0.9f);

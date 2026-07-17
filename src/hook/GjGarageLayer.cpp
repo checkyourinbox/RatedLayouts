@@ -1,4 +1,5 @@
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 #include <capeling.garage-stats-menu/include/StatsDisplayAPI.h>
 
 #include <Geode/Geode.hpp>
@@ -7,6 +8,7 @@
 #include <argon/argon.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
 
 class $modify(GJGarageLayer) {
     struct Fields {
@@ -35,7 +37,7 @@ class $modify(GJGarageLayer) {
         if (!GJGarageLayer::init())
             return false;
 
-        if (Mod::get()->getSettingValue<bool>("disableGarageStats"))
+        if (CachedSettings::get()->disableGarageStats)
             return true;
 
         m_fields->statMenu =

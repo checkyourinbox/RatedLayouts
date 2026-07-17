@@ -1,5 +1,6 @@
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 #include "utils/RLData.hpp"
 #include <Geode/DefaultInclude.hpp>
 #include <Geode/Geode.hpp>
@@ -93,6 +94,7 @@ static void initRLBadges() {
     registerRLBadge<RLBadgeKind::Supporter>();
     registerRLBadge<RLBadgeKind::Booster>();
     log::info("Set up badges!");
+    CachedSettings::get()->isBadgifyLoaded = true;
 }
 
 $on_mod(Loaded) {
@@ -131,7 +133,7 @@ class $modify(RLSupportLayer, SupportLayer) {
     };
 
     void customSetup() {
-        if (!Mod::get()->getSettingValue<bool>("disableRLReq")) {
+        if (!CachedSettings::get()->disableRLReq) {
             CCMenu* argonMenu = CCMenu::create();
             m_fields->m_argonMenu = argonMenu;
             argonMenu->setPosition({0, 0});
@@ -275,7 +277,7 @@ class $modify(RLSupportLayer, SupportLayer) {
 
     // TODO: Handle cases if someone DOES get mod fsr?
     void onRequestAccess(CCObject* sender) {  // i assume that no one will ever get gd mod xddd
-        if (Mod::get()->getSettingValue<bool>("disableRLReq")) {
+        if (CachedSettings::get()->disableRLReq) {
             SupportLayer::onRequestAccess(sender);
             return;
         }
@@ -340,76 +342,60 @@ class $modify(RLSupportLayer, SupportLayer) {
                             return;
                         }
 
-                        auto json = jsonRes.unwrap();
-                        bool isClassicMod =
-                            json["isClassicMod"].asBool().unwrapOrDefault();
-                        bool isClassicAdmin =
-                            json["isClassicAdmin"].asBool().unwrapOrDefault();
-                        bool isLeaderboardMod =
-                            json["isLeaderboardMod"].asBool().unwrapOrDefault();
-                        bool isLeaderboardAdmin =
-                            json["isLeaderboardAdmin"].asBool().unwrapOrDefault();
-                        bool isPlatMod = json["isPlatMod"].asBool().unwrapOrDefault();
-                        bool isPlatAdmin =
-                            json["isPlatAdmin"].asBool().unwrapOrDefault();
-                        bool isOwner = json["isOwner"].asBool().unwrapOrDefault();
-                        bool isDeveloper = json["isDeveloper"].asBool().unwrapOrDefault();
-
-                        Mod::get()->setSavedValue<bool>("isClassicMod", isClassicMod);
-                        Mod::get()->setSavedValue<bool>("isClassicAdmin",
-                            isClassicAdmin);
-                        Mod::get()->setSavedValue<bool>("isLeaderboardMod",
-                            isLeaderboardMod);
-                        Mod::get()->setSavedValue<bool>("isLeaderboardAdmin",
-                            isLeaderboardAdmin);
-                        Mod::get()->setSavedValue<bool>("isPlatMod", isPlatMod);
-                        Mod::get()->setSavedValue<bool>("isPlatAdmin", isPlatAdmin);
-                        Mod::get()->setSavedValue<bool>("isOwner", isOwner);
-                        Mod::get()->setSavedValue<bool>("isDeveloper", isDeveloper);
+                        auto json = std::move(jsonRes).unwrap();
+                        auto info = json.as<RLUserInfo>().unwrapOrDefault();
+                        Mod::get()->setSavedValue<bool>("isClassicMod", info.isClassicMod);
+                        Mod::get()->setSavedValue<bool>("isClassicAdmin", info.isClassicAdmin);
+                        Mod::get()->setSavedValue<bool>("isLeaderboardMod", info.isLeaderboardMod);
+                        Mod::get()->setSavedValue<bool>("isLeaderboardAdmin", info.isLeaderboardAdmin);
+                        Mod::get()->setSavedValue<bool>("isPlatMod", info.isPlatMod);
+                        Mod::get()->setSavedValue<bool>("isPlatAdmin", info.isPlatAdmin);
+                        Mod::get()->setSavedValue<bool>("isOwner", info.isOwner);
+                        Mod::get()->setSavedValue<bool>("isDeveloper", info.isDeveloper);
 
                         int roleCount = 0;
-                        roleCount += isClassicMod ? 1 : 0;
-                        roleCount += isClassicAdmin ? 1 : 0;
-                        roleCount += isLeaderboardMod ? 1 : 0;
-                        roleCount += isLeaderboardAdmin ? 1 : 0;
-                        roleCount += isPlatMod ? 1 : 0;
-                        roleCount += isPlatAdmin ? 1 : 0;
-                        roleCount += isDeveloper ? 1 : 0;
-                        roleCount += isOwner ? 1 : 0;
+                        roleCount += info.isClassicMod ? 1 : 0;
+                        roleCount += info.isClassicAdmin ? 1 : 0;
+                        roleCount += info.isLeaderboardMod ? 1 : 0;
+                        roleCount += info.isLeaderboardAdmin ? 1 : 0;
+                        roleCount += info.isPlatMod ? 1 : 0;
+                        roleCount += info.isPlatAdmin ? 1 : 0;
+                        roleCount += info.isDeveloper ? 1 : 0;
+                        roleCount += info.isOwner ? 1 : 0;
 
                         if (roleCount > 1) {
                             log::info("Granted Multiple roles");
                             popupRef->showSuccessMessage(
                                 "Granted Layout roles.");
-                        } else if (isClassicMod) {
+                        } else if (info.isClassicMod) {
                             log::info("Granted Layout Mod role");
                             popupRef->showSuccessMessage(
                                 "Granted Classic Layout Mod.");
-                        } else if (isClassicAdmin) {
+                        } else if (info.isClassicAdmin) {
                             log::info("Granted Layout Admin role");
                             popupRef->showSuccessMessage(
                                 "Granted Classic Layout Admin.");
-                        } else if (isLeaderboardMod) {
+                        } else if (info.isLeaderboardMod) {
                             log::info("Granted Leaderboard Layout Mod role");
                             popupRef->showSuccessMessage(
                                 "Granted Leaderboard Layout Mod.");
-                        } else if (isLeaderboardAdmin) {
+                        } else if (info.isLeaderboardAdmin) {
                             log::info("Granted Leaderboard Layout Admin role");
                             popupRef->showSuccessMessage(
                                 "Granted Leaderboard Layout Admin.");
-                        } else if (isPlatMod) {
+                        } else if (info.isPlatMod) {
                             log::info("Granted Platformer Layout Mod role");
                             popupRef->showSuccessMessage(
                                 "Granted Platformer Layout Mod.");
-                        } else if (isPlatAdmin) {
+                        } else if (info.isPlatAdmin) {
                             log::info("Granted Platformer Admin role");
                             popupRef->showSuccessMessage(
                                 "Granted Platformer Layout Admin.");
-                        } else if (isOwner) {
+                        } else if (info.isOwner) {
                             log::info("Granted Owner role");
                             popupRef->showSuccessMessage(
                                 "Granted Owner role.");
-                        } else if (isDeveloper) {
+                        } else if (info.isDeveloper) {
                             log::info("Granted Developer role");
                             popupRef->showSuccessMessage(
                                 "Granted Developer role.");

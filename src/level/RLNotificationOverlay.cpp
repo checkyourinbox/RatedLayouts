@@ -1,9 +1,11 @@
 #include "RLNotificationOverlay.hpp"
 #include "RLNotificationAlert.hpp"
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
 
 RLNotificationOverlay* RLNotificationOverlay::create() {
     auto ret = new RLNotificationOverlay();
@@ -68,13 +70,13 @@ bool RLNotificationOverlay::init() {
     m_alertQueue->retain();
     m_isShowingAlert = false;
 
-    float pollingInterval = Mod::get()->getSettingValue<float>("pollingInterval");
+    float pollingInterval = CachedSettings::get()->pollingInterval;
 
     if (pollingInterval <= 0) {
         return true;
     }
 
-    if (Mod::get()->getSettingValue<bool>("disableNewRate")) {
+    if (CachedSettings::get()->disableNewRate) {
         log::info("notifications are disabled");
         return true;
     }
@@ -86,12 +88,12 @@ bool RLNotificationOverlay::init() {
 }
 
 void RLNotificationOverlay::callRateNotification(float dt) {
-    if (Mod::get()->getSettingValue<bool>("disableNewRate")) {
+    if (CachedSettings::get()->disableNewRate) {
         log::info("notifications are disabled");
         return;
     }
 
-    if ((PlayLayer::get() || LevelEditorLayer::get()) && Mod::get()->getSettingValue<bool>("disableNewRateInLevel")) {
+    if ((PlayLayer::get() || LevelEditorLayer::get()) && CachedSettings::get()->disableNewRateInLevel) {
         log::info("notifications are disabled in level/editor");
         return;
     }
@@ -189,8 +191,7 @@ void RLNotificationOverlay::callRateNotification(float dt) {
                             "New Rated Layout", newRate.levelName, newRate.difficulty, newRate.featured, newRate.levelId, newRate.accountName, newRate.isPlatformer, "rate");
                         if (alert) {
                             self->pushAlert(alert);
-                            Mod::get()->setSavedValue<int>("latestNotifiedRateLevelId",
-                                newRate.levelId);
+                            Mod::get()->setSavedValue<int>("latestNotifiedRateLevelId", newRate.levelId);
                         }
                     }
                 } else {

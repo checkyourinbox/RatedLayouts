@@ -1,6 +1,9 @@
 #include "RLModsNotesPopup.hpp"
 #include <Geode/binding/CCSpriteGrayscale.hpp>
 #include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
+
+using namespace rl;
 
 static std::string mapRatingToLevel(int rating) {
     switch (rating) {
@@ -85,7 +88,7 @@ bool RLModsNotesPopup::init() {
 
     m_scrollLayer = m_listNode->getScrollLayer();
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollBar = Scrollbar::create(m_scrollLayer);
         scrollBar->setPosition({m_mainLayer->getContentSize().width - 14.f,
             m_mainLayer->getContentSize().height / 2.f - 5.f});

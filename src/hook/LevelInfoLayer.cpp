@@ -10,10 +10,11 @@
 #include "RLAchievements.hpp"
 #include "RLConstants.hpp"
 #include "RLLevelInfo.hpp"
-#include "level/RLCommunityVotePopup.hpp"
-#include "level/RLModRatePopup.hpp"
 #include "RLRubyUtils.hpp"
 #include "RLNetworkUtils.hpp"
+#include "level/RLCommunityVotePopup.hpp"
+#include "level/RLModRatePopup.hpp"
+#include "utils/CachedSettings.hpp"
 #include "Geode/cocos/textures/CCTexture2D.h"
 
 using namespace geode::prelude;
@@ -281,7 +282,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
 
         bool shouldShow = (this->m_fields->m_isRejected || this->m_fields->m_previouslyRejected) &&
                           (rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) &&
-                          !Mod::get()->getSettingValue<bool>("disableRejectedLayouts");
+                          !CachedSettings::get()->disableRejectedLayouts;
 
         if (shouldShow) {
             std::string labelText;
@@ -569,7 +570,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
                     int calcAtPercent = rubyInfo.calcAtPercent;
 
                     bool animationEnabled =
-                        !Mod::get()->getSettingValue<bool>("disableRewardAnimation");
+                        !CachedSettings::get()->disableRewardAnimation;
                     bool hasAnyReward = (rewardValue > 0 || remainingRubies > 0);
 
                     if (animationEnabled && hasAnyReward) {
@@ -1128,7 +1129,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
                         repeat->setTag(0xF00D);
                         titleLabel->runAction(repeat);
 
-                        if (!Mod::get()->getSettingValue<bool>("disableParticles")) {
+                        if (!CachedSettings::get()->disableParticles) {
                             if (layerRef) {
                                 if (auto existing = layerRef->getChildByID("title-particles")) {
                                     existing->removeFromParent();
@@ -1714,7 +1715,7 @@ class $modify(RLLevelInfoLayer, LevelInfoLayer) {
                         repeat->setTag(0xF00D);
                         titleLabel->runAction(repeat);
 
-                        if (!Mod::get()->getSettingValue<bool>("disableParticles")) {
+                        if (!CachedSettings::get()->disableParticles) {
                             if (layerRef) {
                                 if (auto existing = layerRef->getChildByID("title-particles")) {
                                     existing->removeFromParent();
