@@ -2,7 +2,7 @@
 
 BasedOnStyle: Google
 #NamespaceIndentation: All
-NamespaceIndentation: Inner
+NamespaceIndentation: None
 CommentPragmas: "^"
 FixNamespaceComments: true
 SortIncludes: false
