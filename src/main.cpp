@@ -1,21 +1,106 @@
 #include "RLConstants.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/RLData.hpp"
 #include <Geode/DefaultInclude.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/binding/GJAccountManager.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>
 #include <Geode/modify/SupportLayer.hpp>
+#include <Geode/utils/async.hpp>
 #include <Geode/utils/file.hpp>
+#include <Geode/utils/terminate.hpp>
+#include <arc/future/Future.hpp>
 #include <argon/argon.hpp>
+#include <alphalaneous.badgify/include/Badgify.hpp>
 
 using namespace geode::prelude;
+using namespace rl;
+
+// TODO: Check on random performance issues
+
+static bool doesUserHaveBadge(RLBadgeKind K, RLUserInfo const& info) {
+    using enum RLBadgeKind;
+    switch (K) {
+        case Supporter:
+            return info.isSupporter;
+        case Booster:
+            return info.isBooster;
+        case ClassicAdmin:
+            return info.isClassicAdmin;
+        case ClassicMod:
+            return info.isClassicMod;
+        case PlatAdmin:
+            return info.isPlatAdmin;
+        case PlatMod:
+            return info.isPlatMod;
+        case LeaderboardMod:
+            return info.isLeaderboardMod;
+        case Owner:
+            return info.isOwner;
+        case LeaderboardAdmin:
+            return info.isLeaderboardAdmin;
+        case Developer:
+            return info.isDeveloper;
+        default:
+            return false;
+    }
+}
+
+static void isUserInBadge(RLBadgeKind K, alpha::badgify::Badge badge) {
+    const RLUserId accountId = badge.user->m_accountID;
+    async::spawn(
+        RLUserInfo::get(accountId),
+        [K, badge = std::move(badge)](Result<RLUserInfo> info) {
+            if (info.isErr()) [[unlikely]] {
+                log::warn("Could not load user info: {}", info.unwrapErr());
+                return;
+            }
+            if (!doesUserHaveBadge(K, info.unwrap()))
+                return;
+            // Show badge
+            Loader::get()->queueInMainThread([K, badge = std::move(badge)]() {
+                const char* spriteName = getBadgeInfo(K)->sprite;
+                alpha::badgify::showBadge(badge, CCSprite::createWithSpriteFrameName(spriteName));
+            });
+        });
+}
+
+template <RLBadgeKind K>
+static void badgeCallback(const alpha::badgify::Badge& badge) {
+    using enum alpha::badgify::Location;
+    if (badge.location == Profile || badge.location == Comment)
+        isUserInBadge(K, badge);
+}
+
+template <RLBadgeKind K>
+RL_NO_INLINE static void registerRLBadge() {
+    constexpr const RLBadgeInfo* info = rl::getBadgeInfo(K);
+    static_assert(info && info->isValid(), "Invalid badge type!");
+    alpha::badgify::registerBadge(info->id, info->title, info->desc, &badgeCallback<K>);
+}
+
+// TODO: Add larger, high quality versions of each badge.
+static void initRLBadges() {
+    registerRLBadge<RLBadgeKind::Owner>();
+    registerRLBadge<RLBadgeKind::Developer>();
+    registerRLBadge<RLBadgeKind::ClassicAdmin>();
+    registerRLBadge<RLBadgeKind::PlatAdmin>();
+    registerRLBadge<RLBadgeKind::LeaderboardAdmin>();
+    registerRLBadge<RLBadgeKind::ClassicMod>();
+    registerRLBadge<RLBadgeKind::PlatMod>();
+    registerRLBadge<RLBadgeKind::LeaderboardMod>();
+    registerRLBadge<RLBadgeKind::Supporter>();
+    registerRLBadge<RLBadgeKind::Booster>();
+    log::info("Set up badges!");
+}
 
 $on_mod(Loaded) {
     GJUserScore* userScore = GJUserScore::create();
     userScore->m_accountID = GJAccountManager::get()->m_accountID;
     if (userScore->m_modBadge != 0) {
         log::debug("User has mod badge: {}", userScore->m_modBadge);
+        // TODO: Change this?
         Mod::get()->setSettingValue<bool>("disableRLReq", true);
     } else {
         log::debug("User does not have a mod badge");
@@ -26,6 +111,12 @@ $on_mod(Loaded) {
         log::debug("Running on GDPS, disabling Rated Layouts requests");
         Mod::get()->setSettingValue<bool>("disableRLReq", true);
     }
+
+    if (Loader::get()->getInstalledMod("alphalaneous.badgify"))
+        // Should be loaded, buuuut just in case...
+        alpha::badgify::waitForBadgify(&initRLBadges);
+    else
+        log::info("alphalaneous.badgify not installed, using defaults");
 };
 
 class $modify(RLSupportLayer, SupportLayer) {

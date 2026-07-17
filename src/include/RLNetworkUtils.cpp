@@ -29,7 +29,7 @@ static RL_ALWAYS_INLINE void logBaseURLOnce(std::string_view ret) {
     static bool notPrinted = true;
     if (notPrinted) [[unlikely]] {
         log::debug("Base URL from game executable: '{}'", ret);
-        notPrinted = true;
+        notPrinted = false;
     }
 }
 
@@ -136,14 +136,14 @@ static std::optional<matjson::Value> getStale(std::string_view name,
 
 static matjson::Value loadRequestCacheRootFromFile() {
     auto path = getRequestCachePath();
-    auto existing = utils::file::readString(utils::string::pathToString(path));
+    auto existing = utils::file::readString(path);
     if (!existing) return matjson::Value::object();
 
     auto parsed = matjson::parse(existing.unwrap());
     if (!parsed) return matjson::Value::object();
 
     matjson::Value root = std::move(parsed).unwrap();
-    if (root.isObject()) return matjson::Value::object();
+    if (!root.isObject()) return matjson::Value::object();
     return root;
 }
 
@@ -203,16 +203,14 @@ bool rl::saveRequestCacheRoot() {
     if (!RequestCache) return true;  // No cache
     auto path = getRequestCachePath();
     std::filesystem::create_directories(path.parent_path());
-    auto writeRes = utils::file::writeString(
-        utils::string::pathToString(path), RequestCache->dump(0));
+    auto writeRes = utils::file::writeStringSafe(path, RequestCache->dump(0));
     return writeRes.isOk();
 }
 
 bool rl::saveRequestCacheRoot(matjson::Value const& root) {
     auto path = getRequestCachePath();
     std::filesystem::create_directories(path.parent_path());
-    auto writeRes = utils::file::writeString(
-        utils::string::pathToString(path), root.dump(0));
+    auto writeRes = utils::file::writeStringSafe(path, root.dump(0));
     return writeRes.isOk();
 }
 

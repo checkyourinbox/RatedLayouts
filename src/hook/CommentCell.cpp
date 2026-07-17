@@ -47,8 +47,9 @@ class $modify(RLCommentCell, CommentCell) {
 
     void onEnter() override {
         CommentCell::onEnter();
+        // TODO: Detangle this whole mess
         if (m_fields->m_pendingRoleJson && !m_accountComment) {
-            this->applyUserRoleJson(*m_fields->m_pendingRoleJson, m_fields->m_pendingRoleAccountId);
+            this->applyUserRole(m_fields->userInfo(), m_fields->m_pendingRoleAccountId);
             if (m_fields->m_pendingRoleJson) {
                 this->schedulePendingRoleTextColorRetry();
             }
@@ -85,15 +86,9 @@ class $modify(RLCommentCell, CommentCell) {
 
     bool applyCommentTextColor(RLUserId accountId) {
         // nothing to do if user has no special state
-        if (!m_fields->isSupporter && !m_fields->isClassicMod &&
-            !m_fields->isClassicAdmin && !m_fields->isLeaderboardMod &&
-            !m_fields->isLeaderboardAdmin && !m_fields->isPlatMod &&
-            !m_fields->isPlatAdmin && !m_fields->isBooster &&
-            !m_fields->isDeveloper && !m_fields->isOwner) {
+        if (m_fields->isEmptyUser())
             return false;
-        }
-
-        if (!m_mainLayer) {
+        else if (!m_mainLayer) {
             log::warn("main layer is null, cannot apply color");
             return false;
         }
@@ -266,24 +261,6 @@ class $modify(RLCommentCell, CommentCell) {
     void clearAllRoleBadges(RLUserId accountId) {
         m_fields->clear();
         if (!m_mainLayer) [[likely]] { return; }
-        // remove any role badges if present (very unlikely scenario lol)
-        if (auto userNameMenu = static_cast<CCMenu*>(m_mainLayer->getChildByIDRecursive("username-menu"))) {
-            if (auto owner = userNameMenu->getChildByID("rl-comment-owner-badge"))
-                owner->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-classic-admin-badge"))
-                badge->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-plat-admin-badge"))
-                badge->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-classic-mod-badge"))
-                badge->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-plat-mod-badge"))
-                badge->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-lb-mod-badge"))
-                badge->removeFromParent();
-            if (auto badge = userNameMenu->getChildByID("rl-comment-lb-admin-badge"))
-                badge->removeFromParent();
-            userNameMenu->updateLayout();
-        }
         // remove any glow
         auto glowId = fmt::format("rl-comment-glow-{}", accountId);
         if (auto glow = m_mainLayer->getChildByIDRecursive(glowId))
@@ -403,120 +380,13 @@ class $modify(RLCommentCell, CommentCell) {
             log::warn("main layer is null, cannot load badge for comment");
             return;
         }
-        auto userNameMenu = typeinfo_cast<CCMenu*>(
-            m_mainLayer->getChildByIDRecursive("username-menu"));
-        if (!userNameMenu) {
-            log::warn("username-menu not found in comment cell");
-            return;
-        }
-        auto addBadgeItem = [&](CCSprite* sprite, int tag, const char* id) {
-            if (!sprite)
-                return;
-            if (userNameMenu->getChildByID(id)) {
-                return;  // already added
-            }
-            sprite->setScale(0.7f);
-            auto btn = CCMenuItemSpriteExtra::create(
-                sprite, this, menu_selector(RLCommentCell::onBadgeClicked));
-            btn->setTag(tag);
-            btn->setID(id);
-            userNameMenu->addChild(btn);
-        };
-
-        if (m_fields->isOwner) {
-            addBadgeItem(CCSprite::createWithSpriteFrameName("RL_badgeOwner.png"_spr),
-                         10,
-                         "rl-comment-owner-badge:1");
-        }
-        if (m_fields->isDeveloper) {
-            addBadgeItem(CCSprite::createWithSpriteFrameName("RL_badgeDeveloper.png"_spr),
-                         12,
-                         "rl-comment-developer-badge:1");
-        }
-        // admins
-        if (m_fields->isClassicAdmin) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgeAdmin01.png"_spr), 5, "rl-comment-classic-admin-badge:2");
-        }
-        if (m_fields->isPlatAdmin) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgePlatAdmin01.png"_spr), 7, "rl-comment-plat-admin-badge:2");
-        }
-        // mods
-        if (m_fields->isClassicMod) {
-            addBadgeItem(CCSprite::createWithSpriteFrameName("RL_badgeMod01.png"_spr),
-                         6,
-                         "rl-comment-classic-mod-badge:3");
-        }
-        if (m_fields->isPlatMod) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgePlatMod01.png"_spr), 8, "rl-comment-plat-mod-badge:3");
-        }
-
-        if (m_fields->isLeaderboardAdmin) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgelbAdmin01.png"_spr), 11, "rl-comment-lb-admin-badge:2");
-        }
-        // leaderboard mod badge
-        if (m_fields->isLeaderboardMod) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgelbMod01.png"_spr), 9, "rl-comment-lb-mod-badge:3");
-        }
-        // supporter badge
-        if (m_fields->isSupporter) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgeSupporter.png"_spr), 3, "rl-comment-supporter-badge:4");
-        }
-
-        // booster badge
-        if (m_fields->isBooster) {
-            addBadgeItem(
-                CCSprite::createWithSpriteFrameName("RL_badgeBooster.png"_spr), 4, "rl-comment-booster-badge:4");
-        }
-        userNameMenu->updateLayout();
         applyCommentTextColor(accountId);
     }
 
     // show explanatory alert when a badge in a comment is tapped
     void onBadgeClicked(CCObject* sender) {
-        auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
-        if (!btn)
-            return;
-        int tag = btn->getTag();
-        switch (tag) {
-            case 3:  // Supporters
-                rl::showSupporterInfo();
-                break;
-            case 4:  // Boosters
-                rl::showBoosterInfo();
-                break;
-            case 5:  // Classic Admins
-                rl::showClassicAdminInfo();
-                break;
-            case 6:  // Classic Mods
-                rl::showClassicModInfo();
-                break;
-            case 7:  // Plat Admins
-                rl::showPlatAdminInfo();
-                break;
-            case 8:  // Plat Mods
-                rl::showPlatModInfo();
-                break;
-            case 9:  // Leaderboard Mods
-                rl::showLeaderboardModInfo();
-                break;
-            case 11:  // Leaderboard Admins
-                rl::showLeaderboardAdminInfo();
-                break;
-            case 10:  // Owner
-                rl::showOwnerInfo();
-                break;
-            case 12:  // Developer
-                rl::showDevInfo();
-                break;
-            default:
-                break;
-        }
+        if (auto* btn = static_cast<CCMenuItemSpriteExtra*>(sender))
+            rl::showRoleInfoPopup(btn->getTag());
     }
 
     void applyStarGlow(RLUserId accountId, int stars, int planets) {

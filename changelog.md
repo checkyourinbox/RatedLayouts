@@ -4,6 +4,8 @@
 
 - Cache no longer incorrectly copied.
 - Performance improvements (cache, achievements).
+- Migrate from badgesapi to badgify.
+- Cache user info to avoid delayed lookups.
 
 # v1.0.15
 

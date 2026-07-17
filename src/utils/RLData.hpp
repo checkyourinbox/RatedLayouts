@@ -5,7 +5,7 @@
 #include <string>
 #include <Geode/Result.hpp>
 #include <arc/future/Future.hpp>
-//#include <matjson.hpp>
+#include <matjson.hpp>
 #include "RLNetworkUtils.hpp"
 
 namespace rl {
@@ -40,6 +40,8 @@ public:
 
     /// Gets an `RLUserInfo` instance.
     static ResFuture get(RLUserId id, bool useCache = true);
+
+    const RLUserInfo& userInfo() const { return *this; }
     RLUserInfo& clear() { return (*this = RLUserInfo{}); }
     RLUserInfo& init(const RLUserInfo& other) { return (*this = other); }
     RLUserInfo& init(RLUserInfo&& other) { return (*this = std::move(other)); }
@@ -50,6 +52,10 @@ public:
                !isPlatMod && !isPlatAdmin && !isDeveloper && !isOwner;
     }
 };
+
+inline std::filesystem::path getDataCachePath() {
+    return dirs::getModsSaveDir() / Mod::get()->getID() / "data_cache.json";
+}
 }  // namespace rl
 
 template <>
