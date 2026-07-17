@@ -1,5 +1,5 @@
-#include "RLAdminNameplatePopup.hpp"
-#include "../include/RLConstants.hpp"
+#include "popup/RLAdminNameplatePopup.hpp"
+#include "RLConstants.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include <Geode/binding/UploadActionPopup.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
@@ -7,6 +7,7 @@
 #include <Geode/binding/ProfilePage.hpp>
 
 using namespace geode::prelude;
+//using namespace rl;
 
 RLAdminNameplatePopup* RLAdminNameplatePopup::create() {
     auto ret = new RLAdminNameplatePopup();

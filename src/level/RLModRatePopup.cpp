@@ -1,8 +1,8 @@
 #include "RLModRatePopup.hpp"
 #include "Geode/utils/random.hpp"
 #include "RLModRatePayloadBuilder.hpp"
-#include "../include/RLNetworkUtils.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
 #include "Geode/ui/Popup.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/ButtonSprite.hpp>

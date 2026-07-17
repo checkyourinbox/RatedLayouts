@@ -1,10 +1,15 @@
-#include "RLCreditsPopup.hpp"
-#include "../include/RLAchievements.hpp"
+#include "popup/RLCreditsPopup.hpp"
 #include <Geode/Geode.hpp>
 #include <cue/ListNode.hpp>
-#include "../include/RLConstants.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
+using namespace rl;
+
+// TODO: Cache credits info lol
+
 RLCreditsPopup* RLCreditsPopup::create() {
     auto ret = new RLCreditsPopup();
 
@@ -30,7 +35,7 @@ bool RLCreditsPopup::init() {
     if (!scrollLayer)
         return false;
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollbar = Scrollbar::create(scrollLayer);
         scrollbar->setPosition({m_mainLayer->getContentSize().width - 35.f,
             (m_mainLayer->getContentSize().height / 2.f) - 5.f});
@@ -406,42 +411,6 @@ void RLCreditsPopup::onInfo(CCObject* sender) {
 }
 
 void RLCreditsPopup::onHeaderInfo(CCObject* sender) {
-    auto btn = static_cast<CCMenuItem*>(sender);
-    if (!btn)
-        return;
-    int tag = btn->getTag();
-    switch (tag) {
-        case 3:  // Supporters
-            rl::showSupporterInfo();
-            break;
-        case 4:  // Boosters
-            rl::showBoosterInfo();
-            break;
-        case 5:  // Classic Admins
-            rl::showClassicAdminInfo();
-            break;
-        case 6:  // Classic Mods
-            rl::showClassicModInfo();
-            break;
-        case 7:  // Plat Admins
-            rl::showPlatAdminInfo();
-            break;
-        case 8:  // Plat Mods
-            rl::showPlatModInfo();
-            break;
-        case 9:  // Leaderboard Mods
-            rl::showLeaderboardModInfo();
-            break;
-        case 11:  // Leaderboard Admins
-            rl::showLeaderboardAdminInfo();
-            break;
-        case 10:  // Owner
-            rl::showOwnerInfo();
-            break;
-        case 12:  // Developer
-            rl::showDevInfo();
-            break;
-        default:
-            break;
-    }
+    if (auto* btn = static_cast<CCMenuItem*>(sender))
+        rl::showRoleInfoPopup(btn->getTag());
 }

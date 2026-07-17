@@ -1,4 +1,4 @@
-#include "RLLevelBrowserLayer.hpp"
+#include "layer/RLLevelBrowserLayer.hpp"
 
 #include <Geode/binding/GameLevelManager.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>
@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <charconv>
 
-#include "../include/RLLayerBackground.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLLayerBackground.hpp"
+#include "RLConstants.hpp"
+#include "utils/CachedSettings.hpp"
 #include <cue/RepeatingBackground.hpp>
 #include <string>
 
 using namespace geode::prelude;
+using namespace rl;
 
 static constexpr CCSize LIST_SIZE{356.f, 220.f};
 static constexpr int PER_PAGE = 10;
@@ -209,7 +211,7 @@ void RLLevelBrowserLayer::setupControls() {
         m_listNode->addChild(m_titleLabel, 1);
     }
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollBar = Scrollbar::create(m_scrollLayer);
         scrollBar->setPosition({LIST_SIZE.width + 24.f, LIST_SIZE.height / 2});
         scrollBar->setContentHeight(LIST_SIZE.height - 20);
@@ -290,7 +292,7 @@ bool RLLevelBrowserLayer::init(GJSearchObject* object) {
         m_listNode->addChild(m_titleLabel, 1);
     }
 
-    if (!Mod::get()->getSettingValue<bool>("disableScrollbar")) {
+    if (!CachedSettings::get()->disableScrollbar) {
         auto scrollBar = Scrollbar::create(m_scrollLayer);
         scrollBar->setPosition({LIST_SIZE.width + 24.f, LIST_SIZE.height / 2});
         scrollBar->setContentHeight(LIST_SIZE.height - 20);

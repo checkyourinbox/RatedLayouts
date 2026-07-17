@@ -1,6 +1,6 @@
 #include "RLUserLevelControl.hpp"
-#include "../include/RLNetworkUtils.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/ui/BasedButtonSprite.hpp"
 #include "Geode/ui/Popup.hpp"

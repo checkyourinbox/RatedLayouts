@@ -1,15 +1,15 @@
-#include "../layer/RLLevelBrowserLayer.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "layer/RLLevelBrowserLayer.hpp"
+#include "RLConstants.hpp"
+#include "RLLevelInfo.hpp"
+#include "RLNetworkUtils.hpp"
+#include "utils/CachedSettings.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/utils/async.hpp>
 #include <string>
 
 using namespace geode::prelude;
-
-extern const std::string legendaryPString;
-extern const std::string epicPString;
+using namespace rl;
 
 class $modify(RLLevelCell, LevelCell) {
     struct Fields {
@@ -46,7 +46,7 @@ class $modify(RLLevelCell, LevelCell) {
             if (this->m_fields->m_previouslyRejected && !this->m_fields->m_isRejected) rejectedLabel = CCLabelBMFont::create("RL Previously Rejected", "bigFont.fnt");
             auto icon = CCSprite::createWithSpriteFrameName("RL_cross_no_box.png"_spr);
 
-            if (!Mod::get()->getSettingValue<bool>("disableRejectedLayoutsGlow") && m_fields->m_isRejected) {
+            if (!CachedSettings::get()->disableRejectedLayoutsGlow && m_fields->m_isRejected) {
                 auto glow = CCLayerGradient::create({255, 40, 40, 80}, {220, 40, 40, 0}, {-1.f, 1.f});
                 glow->setID("rl-rejected-glow");
                 glow->changeWidthAndHeight(m_width, m_height);
@@ -518,7 +518,7 @@ class $modify(RLLevelCell, LevelCell) {
                             difficultySprite->addChild(newEpicCoin, -1);
 
                             // add particle (if configured) on top of epic ring
-                            const std::string& pString = epicPString;
+                            const std::string& pString = rl::getEpicPString();
                             if (!pString.empty()) {
                                 if (auto existingP =
                                         newEpicCoin->getChildByID("rating-particles")) {
@@ -556,7 +556,7 @@ class $modify(RLLevelCell, LevelCell) {
                             difficultySprite->addChild(newLegendaryCoin, -1);
 
                             // particle legendary ring
-                            const std::string& pString = legendaryPString;
+                            const std::string& pString = rl::getLegendaryPString();
                             if (!pString.empty()) {
                                 // remove any existing particles on this coin to avoid dupes
                                 if (auto existingP =
@@ -592,7 +592,7 @@ class $modify(RLLevelCell, LevelCell) {
                 if (featured == 2) {
                     if (epicFeaturedCoin) {
                         if (!epicFeaturedCoin->getChildByID("rating-particles")) {
-                            const std::string& pString = epicPString;
+                            const std::string& pString = rl::getEpicPString();
                             if (!pString.empty()) {
                                 ParticleStruct pStruct;
                                 GameToolbox::particleStringToStruct(pString, pStruct);
@@ -614,7 +614,7 @@ class $modify(RLLevelCell, LevelCell) {
                 } else if (featured == 3) {
                     if (legendaryFeaturedCoin) {
                         if (!legendaryFeaturedCoin->getChildByID("rating-particles")) {
-                            const std::string& pString = legendaryPString;
+                            const std::string& pString = rl::getLegendaryPString();
                             if (!pString.empty()) {
                                 ParticleStruct pStruct;
                                 GameToolbox::particleStringToStruct(pString, pStruct);
@@ -824,7 +824,7 @@ class $modify(RLLevelCell, LevelCell) {
         int levelId = static_cast<int>(level->m_levelID);
 
         this->clearAverageDifficultyLabel();
-        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !Mod::get()->getSettingValue<bool>("disableFetchAverageDifficulty")) {
+        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !CachedSettings::get()->disableFetchAverageDifficulty) {
             Ref<LevelCell> cellRef = this;
             auto postReq = web::WebRequest();
             matjson::Value jsonBody = matjson::Value::object();
@@ -864,7 +864,7 @@ class $modify(RLLevelCell, LevelCell) {
         }
 
         // request rejection status before returning cached data so rejected UI can still update
-        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !Mod::get()->getSettingValue<bool>("disableRejectedLayouts")) {
+        if ((rl::isUserClassicRole() || rl::isUserPlatformerRole() || rl::isUserOwner()) && !CachedSettings::get()->disableRejectedLayouts) {
             Ref<LevelCell> cellRef = this;
             auto checkRejectReq = web::WebRequest();
             checkRejectReq.param("levelId", numToString(levelId));

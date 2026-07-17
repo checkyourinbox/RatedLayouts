@@ -1,8 +1,9 @@
-#include "RLBadgeRequestPopup.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "popup/RLBadgeRequestPopup.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
+//using namespace rl;
 
 RLBadgeRequestPopup* RLBadgeRequestPopup::create() {
     auto ret = new RLBadgeRequestPopup();

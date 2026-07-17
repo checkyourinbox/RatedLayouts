@@ -1,10 +1,10 @@
-#include "RLBuyItemPopup.hpp"
-#include "../include/RLDialogIcons.hpp"
-#include "../utils/RLNameplateItem.hpp"
-#include "../include/RLAchievements.hpp"
-#include "../include/RLConstants.hpp"
-#include "RLShopLayer.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "popup/RLBuyItemPopup.hpp"
+#include "RLDialogIcons.hpp"
+#include "utils/RLNameplateItem.hpp"
+#include "RLAchievements.hpp"
+#include "RLConstants.hpp"
+#include "layer/RLShopLayer.hpp"
+#include "RLRubyUtils.hpp"
 #include "ccTypes.h"
 #include <Geode/binding/GJAccountManager.hpp>
 #include <Geode/binding/UploadActionPopup.hpp>

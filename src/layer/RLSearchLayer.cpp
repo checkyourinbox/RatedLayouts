@@ -1,9 +1,9 @@
-#include "RLSearchLayer.hpp"
-#include "RLLevelBrowserLayer.hpp"
+#include "layer/RLSearchLayer.hpp"
+#include "layer/RLLevelBrowserLayer.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/NineSlice.hpp>
-#include "../include/RLLayerBackground.hpp"
-#include "../include/RLConstants.hpp"
+#include "RLLayerBackground.hpp"
+#include "RLConstants.hpp"
 #include <cue/RepeatingBackground.hpp>
 
 using namespace geode::prelude;

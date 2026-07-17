@@ -4,9 +4,10 @@
 #include "Geode/ui/General.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "ccTypes.h"
-#include "RLGuideInfoPopup.hpp"
+#include "popup/RLGuideInfoPopup.hpp"
 
 using namespace geode::prelude;
+//using namespace rl;
 
 RLGuideInfoPopup* RLGuideInfoPopup::create() {
     auto ret = new RLGuideInfoPopup();

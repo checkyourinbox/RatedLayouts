@@ -1,9 +1,10 @@
-#include "RLAnnouncementPopup.hpp"
-#include "../include/RLConstants.hpp"
+#include "popup/RLAnnouncementPopup.hpp"
+#include "RLConstants.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/NineSlice.hpp>
 
 using namespace geode::prelude;
+//using namespace rl;
 
 RLAnnouncementPopup* RLAnnouncementPopup::create() {
     auto popup = new RLAnnouncementPopup();

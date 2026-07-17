@@ -1,10 +1,10 @@
-#include "RLDonationPopup.hpp"
+#include "popup/RLDonationPopup.hpp"
 #include <argon/argon.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/ui/NineSlice.hpp>
-#include "RLBadgeRequestPopup.hpp"
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "popup/RLBadgeRequestPopup.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 
 #include <cstdlib>
 #include <ctime>

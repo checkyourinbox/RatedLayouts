@@ -1,6 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/DialogLayer.hpp>
-#include "../include/RLDialogIcons.hpp"
+#include "RLDialogIcons.hpp"
 
 using namespace geode::prelude;
 using namespace rl;

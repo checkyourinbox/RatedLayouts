@@ -1,10 +1,11 @@
-#include "../include/RLAchievements.hpp"
-#include "../include/RLRubyUtils.hpp"
+#include "RLAchievements.hpp"
+#include "RLRubyUtils.hpp"
 #include "Geode/cocos/textures/CCTexture2D.h"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EndLevelLayer.hpp>
-#include "../include/RLConstants.hpp"
-#include "../layer/RLSpireSelectLevelLayer.hpp"
+#include "RLConstants.hpp"
+#include "layer/RLSpireSelectLevelLayer.hpp"
+#include "utils/CachedSettings.hpp"
 
 using namespace geode::prelude;
 using namespace rl;
@@ -481,8 +482,7 @@ class $modify(EndLevelLayer) {
 
                             // never used this before but its fancy
                             // some devices crashes from this, idk why soggify
-                            bool animationEnabled = !Mod::get()->getSettingValue<bool>(
-                                "disableRewardAnimation");
+                            bool animationEnabled = !CachedSettings::get()->disableRewardAnimation;
                             if (animationEnabled && (responseStars > 0 || responsePlanets > 0)) {
                                 if (auto rewardLayer = CurrencyRewardLayer::create(
                                         0, isPlat ? starReward : 0, isPlat ? 0 : starReward, remainingRubies, CurrencySpriteType::Star, 0, CurrencySpriteType::Star, 0, bigStarSprite->getPosition(), CurrencyRewardType::Default, 0.0, 1.0)) {
@@ -664,9 +664,7 @@ class $modify(EndLevelLayer) {
                                     rl::setPlayerRubies(oldGlobal + remainingRubies);
 
                                     // only show notification when animation disabled
-                                    if (Mod::get()->getSettingValue<bool>(
-                                            "disableRewardAnimation") &&
-                                        remainingRubies > 0) {
+                                    if (CachedSettings::get()->disableRewardAnimation && remainingRubies > 0) {
                                         Notification::create(
                                             std::string("Received ") +
                                                 numToString(remainingRubies) + " rubies!",

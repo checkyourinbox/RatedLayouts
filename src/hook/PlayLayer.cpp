@@ -1,10 +1,10 @@
-#include "../include/RLRubyUtils.hpp"
+#include "RLRubyUtils.hpp"
 #include "Geode/utils/general.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/utils/async.hpp>
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 
 using namespace geode::prelude;
 using namespace rl;

@@ -2,8 +2,8 @@
 #include <Geode/modify/CCSprite.hpp>
 #include <Geode/modify/EffectGameObject.hpp>
 #include <Geode/modify/GameObject.hpp>
-#include "../include/RLConstants.hpp"
-#include "../include/RLNetworkUtils.hpp"
+#include "RLConstants.hpp"
+#include "RLNetworkUtils.hpp"
 #include <algorithm>
 #include <vector>
 
