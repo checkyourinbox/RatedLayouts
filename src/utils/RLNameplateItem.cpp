@@ -1,6 +1,7 @@
 #include "RLNameplateItem.hpp"
 #include <fmt/core.h>
 #include "Geode/ui/NineSlice.hpp"
+#include "utils/LazyNameplate.hpp"
 
 using namespace geode::prelude;
 using namespace rl;
@@ -19,13 +20,22 @@ CCMenuItemSpriteExtra* RLNameplateItem::create(
     CCNode* iconNode = nullptr;
     CCSize texSize = {40.f, 40.f};
 
+    LazySprite* lazy = nullptr;
+    // lazy load remote image
     if (!iconUrl.empty()) {
-        // lazy load remote image
-        auto lazy = LazySprite::create({40, 40}, true);
-        lazy->loadFromUrl(iconUrl, CCImage::kFmtPng, true);
+        // TODO: Fix image lazy loading
+        lazy = LazySprite::create({40, 40}, true);
         lazy->setAutoResize(true);
+        async::spawn([self = Ref(lazy), iconUrl] () -> arc::Future<> {
+            self->loadFromUrl(iconUrl, CCImage::kFmtPng, true);
+            co_return;
+        });
+    } else {
+        lazy = LazyNameplate::create({40, 40}, index, true);
+    }
 
-        auto stencil = NineSlice::createWithSpriteFrameName("RL_nameplateIconClip.png"_spr);
+    auto* stencil = NineSlice::createWithSpriteFrameName("RL_nameplateIconClip.png"_spr);
+    if (lazy) {
         if (stencil) {
             auto clip = CCClippingNode::create();
             clip->setStencil(stencil);
@@ -105,6 +115,8 @@ bool RLNameplateItem::getInfo(int index, RLNameplateInfo& out) {
 static std::filesystem::path ownedPath() {
     return dirs::getModsSaveDir() / Mod::get()->getID() / "owned_items.json";
 }
+
+// TODO: Save in memory
 
 std::vector<int> RLNameplateItem::getOwnedItems() {
     std::vector<int> out;

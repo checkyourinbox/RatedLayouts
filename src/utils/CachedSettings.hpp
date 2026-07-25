@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/loader/Mod.hpp>
+#include "utils/RLData.hpp"
 #include "CachedSettings.def"
 
 #define DECL_SETTING(NAME, TYPE, SETTING) \
@@ -19,6 +20,7 @@ public:
 
 /// Holds all the settings in the mod, as well as some for the running program.
 struct CachedSettings : public CachedSettingsBase {
+    RLUserInfo userData = {};
     bool isBadgifyLoaded = false;
 
 public:

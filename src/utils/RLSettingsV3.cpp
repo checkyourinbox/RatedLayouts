@@ -1,5 +1,6 @@
 #include "RLSettingsV3.hpp"
 #include "RLNetworkUtils.hpp"
+#include "utils/RLData.hpp"
 #include "Geode/ui/Popup.hpp"
 
 using namespace geode::prelude;
@@ -71,7 +72,7 @@ bool RLClearCacheButtonSettingNodeV3::init(
 
 void RLClearCacheButtonSettingNodeV3::updateState(CCNode* invoker) {
     SettingNodeV3::updateState(invoker);
-    bool hasCache = rl::requestCacheExists();
+    bool hasCache = rl::hasRLDataCache() || rl::requestCacheExists();
     bool shouldEnable = this->getSetting()->shouldEnable() && hasCache;
 
     if (m_button) {
@@ -92,13 +93,14 @@ void RLClearCacheButtonSettingNodeV3::updateState(CCNode* invoker) {
 void RLClearCacheButtonSettingNodeV3::confirmClear(CCObject*) {
     createQuickPopup("Clear Cache",
         "Are you sure you want to <cg>clear the cache</c>?\n"
-        "<cy>This will remove cached data for levels and comments.</c>\n"
+        "<cy>This will remove ALL cached data.</c>\n"
         "<cr>This action cannot be undone.</c>",
         "No",
         "Yes",
         [this](auto, bool yes) {
             if (!yes)
                 return;
+            rl::clearRLDataCache();
             rl::clearRequestCache();
             this->updateState(nullptr);
             Notification::create(
