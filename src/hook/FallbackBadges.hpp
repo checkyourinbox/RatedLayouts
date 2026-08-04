@@ -9,14 +9,13 @@
 namespace rl {
 
 template <class Self>
-inline void setupFallbackBadgesImpl(geode::Ref<Self> self, RLUserInfo const& info,
-                                    std::string_view name, float spriteScale = 1.0f) {
+inline void setupFallbackBadgesImpl(geode::Ref<Self> self, RLUserInfo const& info, std::string_view name, float spriteScale = 1.0f) {
     if (CachedSettings::get()->isBadgifyLoaded) return;
     if (!self->m_mainLayer) {
         log::warn("main layer is null, cannot load badge for {}", name);
         return;
     }
-    
+
     geode::Ref<CCMenu> usernameMenu = typeinfo_cast<CCMenu*>(
         self->m_mainLayer->getChildByIDRecursive("username-menu"));
     if (!usernameMenu) {
