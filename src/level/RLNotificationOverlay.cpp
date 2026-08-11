@@ -98,24 +98,13 @@ void RLNotificationOverlay::callRateNotification(float dt) {
         return;
     }
 
-    auto req = web::WebRequest();
-
     log::debug("Polling for new rate notifications...");
+    Ref<RLNotificationOverlay> self = this;
     async::spawn(
-        req.get(std::string(rl::BASE_API_URL) + "/getNewRate"),
-        [this](web::WebResponse response) {
-            if (!response.ok()) {
-                log::warn("Rate notification fetch failed: {}", response.code());
-                return;
-            }
-
-            auto jsonRes = response.json();
-            if (!jsonRes) {
-                log::warn("Failed to parse JSON response for rate notification");
-                return;
-            }
-
-            auto json = jsonRes.unwrap();
+        LocalEndpoint::get("getNewRate"),
+        [self](Result<matjson::Value> res) {
+            if (!self || res.isErr()) return;
+            auto json = std::move(res).unwrap();
 
             // Helper struct and parser for nested objects
             struct RateInfo {
@@ -185,7 +174,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newRate.present) {
                 if (newRate.levelId != latestLevelId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Rated Layout", newRate.levelName, newRate.difficulty, newRate.featured, newRate.levelId, newRate.accountName, newRate.isPlatformer, "rate");
@@ -201,7 +189,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newDailyClassic.present) {
                 if (newDailyClassic.levelId != latestDailyClassicEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Daily Classic Layout",
@@ -225,7 +212,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newDailyPlatformer.present) {
                 if (newDailyPlatformer.levelId != latestDailyPlatformerEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Daily Platformer Layout",
@@ -249,7 +235,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newWeeklyClassic.present) {
                 if (newWeeklyClassic.levelId != latestWeeklyClassicEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Weekly Classic Layout",
@@ -273,7 +258,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newWeeklyPlatformer.present) {
                 if (newWeeklyPlatformer.levelId != latestWeeklyPlatformerEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Weekly Platformer Layout",
@@ -297,7 +281,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newMonthlyClassic.present) {
                 if (newMonthlyClassic.levelId != latestMonthlyClassicEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Monthly Classic Layout",
@@ -321,7 +304,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
 
             if (newMonthlyPlatformer.present) {
                 if (newMonthlyPlatformer.levelId != latestMonthlyPlatformerEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             "New Monthly Platformer Layout",
@@ -347,7 +329,6 @@ void RLNotificationOverlay::callRateNotification(float dt) {
                 int currentLatestEventId =
                     Mod::get()->getSavedValue<int>("latestNotifiedRateEventId");
                 if (newEvent.levelId != currentLatestEventId) {
-                    Ref<RLNotificationOverlay> self = this;
                     if (self) {
                         auto alert = RLNotificationAlert::create(
                             fmt::format("New {} Layout", newEvent.eventType),

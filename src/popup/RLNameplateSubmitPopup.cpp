@@ -76,6 +76,7 @@ arc::Future<void> RLNameplateSubmitPopup::pickAndLoadPng() {
 
                 existing->removeFromParent();
 
+                // TODO: Cache sprites here...
                 auto* replacement = LazySprite::create(size, false);
                 replacement->setAutoResize(true);
                 replacement->setPosition(position);

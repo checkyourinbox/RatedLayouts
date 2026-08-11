@@ -105,8 +105,6 @@ void RLRubiesCodePopup::fetchCodes() {
     Ref<RLRubiesCodePopup> self = this;
     m_fetchTask.spawn(web::WebRequest().bodyJSON(body).post(std::string(rl::BASE_API_URL) + "/getRubiesCode"),
         [self, loadingSpinner](web::WebResponse response) {
-            if (!self)
-                return;
             if (!response.ok()) {
                 Notification::create("Failed to fetch rubies codes", NotificationIcon::Error)->show();
                 log::warn("getRubiesCode request failed {}", response.code());

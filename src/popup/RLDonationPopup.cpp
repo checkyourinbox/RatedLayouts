@@ -276,7 +276,8 @@ void RLDonationPopup::onAccessBadge(CCObject* sender) {
             }
 
             auto json = std::move(res).unwrap();
-            auto& data = CachedSettings::get()->userData;
+            auto CS = CachedSettings::update();
+            auto& data = CS->userData;
             data.isSupporter = json["isSupporter"].asBool().unwrapOrDefault();
             data.isBooster = json["isBooster"].asBool().unwrapOrDefault();
 
@@ -317,8 +318,7 @@ void RLDonationPopup::onAccessBadge(CCObject* sender) {
                 m_getAccessTask.spawn(
                     postReq.post(std::string(rl::BASE_API_URL) + "/getAccessSupporter"),
                     [self, popupRef](web::WebResponse response) {
-                        if (!self || !popupRef) return;
-                        log::info("Received response from server");
+                        log::trace("onAccessBadge: Received response from server");
                         if (!response.ok()) {
                             log::warn("Server returned non-ok status: {}",
                                 response.code());

@@ -10,7 +10,9 @@
 namespace rl {
 
 struct RLArgon {
-    using ArgonTaskType = geode::async::TaskHolder<geode::Result<std::string>>;
+    using ResultType = geode::Result<std::string>;
+    using ArgonTaskType = geode::async::TaskHolder<ResultType>;
+    using ResFuture = arc::Future<ResultType>;
 
     /// Handles authorization.
     /// @returns Notifies when validation is complete.
@@ -20,6 +22,10 @@ struct RLArgon {
     static void wait();
     /// Wait for auth to complete asynchronously.
     static arc::Future<> waitAsync();
+    /// Wait for auth with a result.
+    static ResultType resolve();
+    /// Wait for auth with a result asynchronously.
+    static ResFuture resolveAsync();
     /// Clear the cached token.
     static void clear();
     /// Gets the cached token.
@@ -31,6 +37,8 @@ struct RLArgon {
     static bool failed();
     /// Notifies if failure occurred.
     static bool notifyFailed();
+    /// Gets the failure message.
+    static std::string failureMessage();
 };
 
 }  // namespace rl
