@@ -150,7 +150,7 @@ bool rl::Badges_init() {
 #if HAS_BADGIFIED
     if (CachedSettings::mods()->badgified) {
         // Should be loaded, buuuut just in case...
-        dasshu::badgified::waitForbadgified(&initRLBadges<BadgifiedAPI>);
+        dasshu::badgified::waitForBadgified(&initRLBadges<BadgifiedAPI>);
         return true;
     }
 #endif

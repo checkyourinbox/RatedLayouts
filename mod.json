@@ -1,5 +1,5 @@
 {
-	"geode": "5.8.2",
+	"geode": "5.9.0",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -63,11 +63,11 @@
 			"required": false
 		},
 		"dasshu.badgified": {
-			"version": ">=v1.0.1",
+			"version": ">=v1.0.3",
 			"required": false
 		},
 		"capeling.garage-stats-menu": {
-			"version": ">=v1.0.0",
+			"version": ">=v1.3.2",
 			"required": true
 		},
 		"alphalaneous.alphas-ui-pack": {
