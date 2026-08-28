@@ -141,14 +141,23 @@ static arc::Future<bool> PreloadShopPage(int page) {
                                      .expires(18_hours)
                                      .get();
     // Check the results...
-    if (res.isErr()) co_return false;
+    if (res.isErr()) {
+        log::trace("Error preloading shop page {}: {}", page, res.unwrapErr());
+        co_return false;
+    }
     auto json = std::move(res).unwrap();
 
     // server may return object with nameplates/items array or raw array
-    if (!json.isObject()) co_return false;
+    if (!json.isObject()) [[unlikely]] {
+        log::trace("Error preloading shop page {}: json is not an object", page);
+        co_return false;
+    }
     if (auto nPages = json["totalPages"].asInt()) TotalPages = nPages.unwrap();
     auto itemsVal = json.contains("nameplates") ? json["nameplates"] : json["items"];
-    if (!itemsVal.isArray()) co_return false;
+    if (!itemsVal.isArray()) [[unlikely]] {
+        log::trace("Error preloading shop page {}: nameplates/items is not an array", page);
+        co_return false;
+    }
     auto& arr = itemsVal.asArray().unwrap();
     std::vector<RLNameplateInfo> items = ParseShopItems(arr);
 
@@ -171,10 +180,7 @@ void rl::ShopLayer_init() {
         bool result = co_await PreloadShopPage(0);
         if (co_await PreloadShopPage(0)) {
             FailedTries.store(0);
-            log::info("Finished prefetching shop page info");
-            if (!TriedPrefetching.exchange(true)) {
-                rl::ShopLayer_prefetch();
-            }
+            log::info("Finished shop page info init");
         } else {
             DidInit.store(false);
             if (FailedTries.fetch_add(1) == 0) log::warn("Failed to prefetch shop page info");
