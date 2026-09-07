@@ -15,12 +15,6 @@ constexpr int ARCTICWOOF_ACCOUNT_ID = 7689052;
 // Base URL for all Rated Layouts API endpoints.
 inline constexpr std::string_view BASE_API_URL = "https://gdrate.arcticwoof.xyz";
 
-
-}
-
-}
-}
-
 struct Keys {
     static inline constexpr std::string_view USER_INFO = "user_info";
     //static inline constexpr std::string_view USER_INFO_ID = "user_info_id";

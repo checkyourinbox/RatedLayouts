@@ -46,19 +46,6 @@ static void removeOldSavedValues() {
     }
 }
 
-}
-
-}
-
-template <RLBadgeKind K>
-RL_NO_INLINE static void registerRLBadge() {
-    constexpr const RLBadgeInfo* info = rl::getBadgeInfo(K);
-    static_assert(info && info->isValid(), "Invalid badge type!");
-    alpha::badgify::registerBadge(info->id, info->title, info->desc, &badgeCallback<K>);
-}
-
-}
-
 $on_mod(Loaded) {
     RLArgon::authorize(true);
     // Other initialization

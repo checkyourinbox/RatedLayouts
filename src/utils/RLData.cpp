@@ -346,13 +346,7 @@ static LocalEndpoint::ResFuture getRemoteEndpointCommon(web::WebResponse respons
                                                         LocalEndpointData data,
                                                         bool withAuth,
                                                         bool alwaysEmplace = false) {
-    if (IS_USING_NEW_API && withAuth) {
-        auto kind = getExpiredTokenKind(response);
-        if (kind != ExpiredToken::NONE) {
-            log::info("/{} retrying after refreshing token", data.name);
-        }
-    }
-
+    // FIXME: Handle auth refreshing
     if (!response.ok()) {
         log::warn("/{} returned non-ok status: {}", data.name, response.code());
         co_return Err(fmt::format("Failed to fetch from /{}", data.name));

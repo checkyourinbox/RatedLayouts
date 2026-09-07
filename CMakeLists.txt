@@ -87,8 +87,6 @@ add_rl_library(Utils
   "utils/RLSettingsV3.cpp"
   "utils/RLUpdateAccountButtonSettingV3.cpp"
   "utils/TimedCacheEntry.cpp"
-
-  "utils/GetAll.cpp"
 )
 
 add_rl_library(Layer
