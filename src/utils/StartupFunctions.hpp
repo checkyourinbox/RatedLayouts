@@ -12,6 +12,4 @@ void ShopLayer_prefetch(); // Start loading the pages when checking the main men
 /// In `hooks/Badges.cpp`
 bool Badges_init();
 
-void GetAllServerData_fetch();
-
 } // namespace rl

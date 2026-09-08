@@ -48,7 +48,7 @@ protected:
 
     geode::async::TaskHolder<geode::utils::web::WebResponse> m_fetchTask;
     std::atomic<bool> m_isFetchingRemote = false;
-    std::array<bool, 6> m_alreadyFetched = {}; // TODO
+    std::array<bool, 6> m_alreadyFetched = {};  // TODO
 
 private:
     template <bool ClearElts>
@@ -65,8 +65,7 @@ private:
                 m_userListNode->scrollToTop();
             }
         }
-        if (m_scrollBar)
-            m_scrollBar->setVisible(state);
+        if (m_scrollBar) m_scrollBar->setVisible(state);
     }
 
     geode::Function<void()> m_refreshFn = nullptr;

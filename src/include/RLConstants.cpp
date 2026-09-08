@@ -1,6 +1,7 @@
 #include "RLConstants.hpp"
 #include "utils/CachedSettings.hpp"
 
+// clang-format off
 using namespace rl;
 
 constexpr const char RLBadgeInfo::DEFAULT[1] = {};

@@ -74,34 +74,37 @@ private:
 
         // sparks
         auto* starSprite = CCSprite::createWithSpriteFrameName("RL_starMed.png"_spr);
-        auto* starsValue = StatsDisplayAPI::getNewItem("rl-sparks"_spr, starSprite, m_fields->stars, 0.54f);
+        auto* starsValue =
+            StatsDisplayAPI::getNewItem("rl-sparks"_spr, starSprite, m_fields->stars, 0.54f);
         starsValue->setID("rl-stars-value");
         menu->addChild(starsValue);
 
         // planets
         auto* planetSprite = CCSprite::createWithSpriteFrameName("RL_planetMed.png"_spr);
-        auto* planetsValue =
-            StatsDisplayAPI::getNewItem("planets-collected"_spr, planetSprite, m_fields->planets, 0.54f);
+        auto* planetsValue = StatsDisplayAPI::getNewItem(
+            "planets-collected"_spr, planetSprite, m_fields->planets, 0.54f);
         planetsValue->setID("rl-planets-value");
         menu->addChild(planetsValue);
 
         // coins
         auto* coinsSprite = CCSprite::createWithSpriteFrameName("RL_BlueCoinSmall.png"_spr);
-        auto* coinsValue = StatsDisplayAPI::getNewItem("coins-collected"_spr, coinsSprite, m_fields->coins, 0.54f);
+        auto* coinsValue =
+            StatsDisplayAPI::getNewItem("coins-collected"_spr, coinsSprite, m_fields->coins, 0.54f);
         coinsValue->setID("rl-coins-value");
         menu->addChild(coinsValue);
 
         // votes
         auto* votesSprite = CCSprite::createWithSpriteFrameName("RL_commVote01.png"_spr);
-        auto* votesValue = StatsDisplayAPI::getNewItem("votes-collected"_spr, votesSprite, m_fields->votes, 0.54f);
+        auto* votesValue =
+            StatsDisplayAPI::getNewItem("votes-collected"_spr, votesSprite, m_fields->votes, 0.54f);
         votesValue->setID("rl-votes-value");
         menu->addChild(votesValue);
 
         if (m_fields->points > 0) {
             // points
             auto* pointsSprite = CCSprite::createWithSpriteFrameName("RL_blueprintPoint01.png"_spr);
-            auto* pointsValue =
-                StatsDisplayAPI::getNewItem("points-collected"_spr, pointsSprite, m_fields->points, 0.54f);
+            auto* pointsValue = StatsDisplayAPI::getNewItem(
+                "points-collected"_spr, pointsSprite, m_fields->points, 0.54f);
             pointsValue->setID("rl-points-value");
             menu->addChild(pointsValue);
         }
